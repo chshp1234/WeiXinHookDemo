@@ -1,0 +1,285 @@
+package com.example.administrator.weixinhookdemo;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.util.Log;
+import android.view.View;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+
+import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
+import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+
+/**
+ * @author Administrator
+ * @date 2018/3/30
+ */
+public class WeiXinHookDemo implements IXposedHookLoadPackage {
+    @Override
+    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+
+        if ("com.tencent.mm".equals(lpparam.packageName)) {
+
+            findAndHookMethod(
+                    "com.tencent.mm.ui.chatting.o",
+                    lpparam.classLoader,
+                    "Eg",
+                    String.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("chatting_Eg", param.args[0].toString());
+                        }
+                    });
+
+
+
+            findAndHookMethod(
+                    "com.tencent.mm.ae.n",
+                    lpparam.classLoader,
+                    "a",
+                    String.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("chatting_Eg", param.args[0].toString());
+                        }
+                    });
+
+
+            findAndHookConstructor(
+                    "com.tencent.mm.modelmulti.j",
+                    lpparam.classLoader,
+                    String.class,
+                    String.class,
+                    int.class,
+                    int.class,
+                    Object.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("sendMsg_5", param.args[0].toString());
+                            Log.d("sendMsg_5", param.args[1].toString());
+                            Log.d("sendMsg_5", param.args[2].toString());
+                            Log.d("sendMsg_5", param.args[3].toString());
+                            Log.d("sendMsg_5", param.args[4].toString());
+                        }
+                    });
+
+            findAndHookConstructor(
+                    "com.tencent.mm.modelmulti.j",
+                    lpparam.classLoader,
+                    String.class,
+                    String.class,
+                    int.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("sendMsg_3", param.args[0].toString());
+                            Log.d("sendMsg_3", param.args[1].toString());
+                            Log.d("sendMsg_3", param.args[2].toString());
+                        }
+                    });
+
+            findAndHookMethod(
+                    "com.tencent.mm.ui.MMBaseActivity",
+                    lpparam.classLoader,
+                    "onResume",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("onResume", lpparam.getClass().getSimpleName());
+                        }
+
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("onResume", lpparam.getClass().getSimpleName());
+                        }
+                    });
+
+            findAndHookMethod(
+                    "com.tencent.mm.ui.MMFragmentActivity",
+                    lpparam.classLoader,
+                    "onResume",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("onResume", lpparam.getClass().getSimpleName());
+                        }
+
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("onResume", lpparam.getClass().getSimpleName());
+                        }
+                    });
+
+            getMethdAndParameter(lpparam, "com.tencent.mm.plugin.messenger.foundation.c");
+
+            // hook接受消息方法，并打印出消息具体参数
+            Class<?> aVar = lpparam.classLoader.loadClass("com.tencent.mm.ae.d$a");
+            Class<?> rVar =
+                    lpparam.classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.r");
+            findAndHookMethod(
+                    "com.tencent.mm.plugin.messenger.foundation.c",
+                    lpparam.classLoader,
+                    "a",
+                    aVar,
+                    rVar,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                            Class aVar2 = param.args[0].getClass();
+                            Log.d("foundation_c", aVar2.toString());
+                            for (Field f : aVar2.getFields()) {
+                                Log.d("Field_name", f.getName());
+                                Log.d("Field_getDeclaringClass", f.getDeclaringClass().getName());
+                            }
+
+                            Object hmq = aVar2.getField("hmq").get(param.args[0]);
+                            Log.d("Field_name", hmq.getClass().getName());
+
+                            Class hmqClass = hmq.getClass();
+
+                            Object vGX = hmqClass.getField("vGX").get(hmq);
+                            Object from = vGX.getClass().getField("wJF").get(vGX);
+
+                            Object vGY = hmqClass.getField("vGY").get(hmq);
+                            Object to = vGY.getClass().getField("wJF").get(vGY);
+
+                            Object vHe = hmqClass.getField("vHe").get(hmq);
+
+                            Object vGW = hmqClass.getField("vGW").get(hmq);
+
+                            Object vHf = hmqClass.getField("vHf").get(hmq);
+
+                            Object ktm = hmqClass.getField("ktm").get(hmq);
+
+                            Object ngq = hmqClass.getField("ngq").get(hmq);
+
+                            Integer pbl = (Integer) hmqClass.getField("pbl").get(hmq);
+
+                            Object vHa = hmqClass.getField("vHa").get(hmq);
+
+                            Object vHb = hmqClass.getField("vHb").get(hmq);
+                            byte[] bytes = new byte[0];
+                            if (vHb != null) {
+                                Object wJD = vHb.getClass().getField("wJD").get(vHb);
+                                if (wJD != null) {
+                                    Method method = wJD.getClass().getMethod("toByteArray");
+                                    bytes = (byte[]) method.invoke(wJD);
+                                    Bitmap bitmap =
+                                            BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    saveImageToGallery(bitmap);
+                                }
+                            }
+
+                            String vHc = "";
+                            String vHd = "";
+                            Object OvHc = hmqClass.getField("vHc").get(hmq);
+                            if (OvHc != null) {
+                                vHc = OvHc.toString();
+                            }
+
+                            Object OvHd = hmqClass.getField("vHd").get(hmq);
+                            if (OvHd != null) {
+                                vHd = OvHd.toString();
+                            }
+
+                            Object vGZ = hmqClass.getField("vGZ").get(hmq);
+                            Object content = vGZ.getClass().getField("wJF").get(vGZ);
+
+                            Log.d("WXMessage", "from：" + from.toString() + "\n");
+                            Log.d("WXMessage", "to：" + to.toString() + "\n");
+                            Log.d("WXMessage", "id_1：" + vHe.toString() + "\n");
+                            Log.d("WXMessage", "id_2：" + vGW.toString() + "\n");
+                            Log.d("WXMessage", "id_3：" + vHf.toString() + "\n");
+                            Log.d("WXMessage", "status：" + ktm.toString() + "\n");
+                            Log.d("WXMessage", "type：" + ngq.toString() + "\n");
+                            Log.d("WXMessage", "time_1：" + pbl.toString() + "\n");
+                            Log.d(
+                                    "WXMessage",
+                                    "time_2："
+                                            + new SimpleDateFormat("[yy-MM-dd HH:mm:ss]")
+                                                    .format(
+                                                            new java.util.Date(
+                                                                    1000 * Long.valueOf(pbl)))
+                                            + "\n");
+                            Log.d(
+                                    "WXMessage",
+                                    "diff："
+                                            + (System.currentTimeMillis() / 1000
+                                                    - Long.valueOf(pbl))
+                                            + "\n");
+                            Log.d("WXMessage", "imgstatus：" + vHa.toString() + "\n");
+                            Log.d("WXMessage", "imgbuf：" + bytes.length + "\n");
+                            Log.d("WXMessage", "src：" + vHc.length() + "\n");
+                            Log.d("WXMessage", "push：" + vHd.length() + "\n");
+                            Log.d("WXMessage", "content：" + content.toString() + "\n");
+                        }
+                    });
+        }
+    }
+
+    /** 获取方法参数，并打印参数名、参数类型 */
+    private void getMethdAndParameter(
+            final XC_LoadPackage.LoadPackageParam param, String className) {
+        try {
+            Class<?> clazz = param.classLoader.loadClass(className);
+            // 获取本类的所有方法，存放入数组
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                Log.d("foundation_c", "方法名：" + method.getName());
+                // 获取本方法所有参数类型，存入数组
+                Class<?>[] getTypeParameters = method.getParameterTypes();
+                if (getTypeParameters.length == 0) {
+                    Log.d("foundation_c", "此方法无参数");
+                }
+                for (Class<?> class1 : getTypeParameters) {
+                    String parameterName = class1.getName();
+                    Log.d("foundation_c", "参数类型：" + parameterName);
+                }
+                Log.d("foundation_c", "****************************");
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** 保存图片至本地 */
+    private static boolean saveImageToGallery(Bitmap bmp) {
+        // 首先保存图片
+        String storePath =
+                Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + File.separator
+                        + "weiyou";
+        Log.d("path", storePath);
+        File appDir = new File(storePath);
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+        String fileName = System.currentTimeMillis() + ".jpg";
+        File file = new File(appDir, fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            // 通过io流的方式来压缩保存图片
+            boolean isSuccess = bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            Log.d("saveState", isSuccess + "");
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+}
