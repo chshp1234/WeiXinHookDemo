@@ -2,6 +2,8 @@ package com.example.administrator.weixinhookdemo;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
@@ -30,64 +32,26 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
 
+            // hook扫描二维码（失败）
             findAndHookMethod(
-                    "com.tencent.mm.ui.chatting.o",
+                    "com.tencent.mm.plugin.scanner.ui.p",
                     lpparam.classLoader,
-                    "Eg",
-                    String.class,
+                    "hJ",
+                    boolean.class,
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("chatting_Eg", param.args[0].toString());
-                        }
-                    });
-
-
-
-            findAndHookMethod(
-                    "com.tencent.mm.ae.n",
-                    lpparam.classLoader,
-                    "a",
-                    String.class,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("chatting_Eg", param.args[0].toString());
-                        }
-                    });
-
-
-            findAndHookConstructor(
-                    "com.tencent.mm.modelmulti.j",
-                    lpparam.classLoader,
-                    String.class,
-                    String.class,
-                    int.class,
-                    int.class,
-                    Object.class,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("sendMsg_5", param.args[0].toString());
-                            Log.d("sendMsg_5", param.args[1].toString());
-                            Log.d("sendMsg_5", param.args[2].toString());
-                            Log.d("sendMsg_5", param.args[3].toString());
-                            Log.d("sendMsg_5", param.args[4].toString());
-                        }
-                    });
-
-            findAndHookConstructor(
-                    "com.tencent.mm.modelmulti.j",
-                    lpparam.classLoader,
-                    String.class,
-                    String.class,
-                    int.class,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("sendMsg_3", param.args[0].toString());
-                            Log.d("sendMsg_3", param.args[1].toString());
-                            Log.d("sendMsg_3", param.args[2].toString());
+                            Rect rect = new Rect();
+                            String fileName =
+                                    Environment.getExternalStorageDirectory()
+                                            + File.separator
+                                            + "vuctrl"
+                                            + File.separator
+                                            + "QRCODE.jpg";
+                            Log.d("fileName", fileName);
+                            Bitmap bitmap = BitmapFactory.decodeFile(fileName);
+                            rect = new Canvas(bitmap).getClipBounds();
+                            param.setResult(rect);
                         }
                     });
 
@@ -180,7 +144,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                     bytes = (byte[]) method.invoke(wJD);
                                     Bitmap bitmap =
                                             BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                    saveImageToGallery(bitmap);
+                                    ImageUtils.saveImageToGallery(bitmap);
                                 }
                             }
 
@@ -256,30 +220,4 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
         }
     }
 
-    /** 保存图片至本地 */
-    private static boolean saveImageToGallery(Bitmap bmp) {
-        // 首先保存图片
-        String storePath =
-                Environment.getExternalStorageDirectory().getAbsolutePath()
-                        + File.separator
-                        + "weiyou";
-        Log.d("path", storePath);
-        File appDir = new File(storePath);
-        if (!appDir.exists()) {
-            appDir.mkdir();
-        }
-        String fileName = System.currentTimeMillis() + ".jpg";
-        File file = new File(appDir, fileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            // 通过io流的方式来压缩保存图片
-            boolean isSuccess = bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            Log.d("saveState", isSuccess + "");
-            fos.flush();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 }
