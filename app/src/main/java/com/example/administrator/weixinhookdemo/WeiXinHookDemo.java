@@ -1,22 +1,29 @@
 package com.example.administrator.weixinhookdemo;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
+import com.blankj.utilcode.util.StringUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
@@ -27,171 +34,253 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
  * @date 2018/3/30
  */
 public class WeiXinHookDemo implements IXposedHookLoadPackage {
+    XposedLog663 xposedLog663 = new XposedLog663();
+
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
 
+            // 打印日志
+            //            xposedLog663.findAndPrintLog(lpparam);
+
+            // hook onCreate方法，并输出intent信息
+            findAndHookMethod(
+                    "android.app.Activity",
+                    lpparam.classLoader,
+                    "onCreate",
+                    Bundle.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Activity activity = (Activity) param.thisObject;
+                            Log.d("hook_onCreate", activity.getLocalClassName());
+                            Intent intent = activity.getIntent();
+                            if (intent.getExtras() != null) {
+                                for (String s : intent.getExtras().keySet()) {
+                                    String value =
+                                            intent.getExtras().get(s) == null
+                                                    ? ""
+                                                    : intent.getExtras().get(s).toString();
+
+                                    Log.d(activity.getLocalClassName() + " intent_key", s);
+                                    Log.d(
+                                            activity.getLocalClassName() + " intent_value",
+                                            value == null || value.trim().length() == 0
+                                                    ? " "
+                                                    : value);
+                                }
+
+                                Log.d(
+                                        activity.getLocalClassName() + " intent_end",
+                                        "======================================================");
+                            } else {
+                                Log.d(activity.getLocalClassName() + " intent_", "  ");
+                            }
+                        }
+                    });
+
             // hook扫描二维码（失败）
-            findAndHookMethod(
-                    "com.tencent.mm.plugin.scanner.ui.p",
-                    lpparam.classLoader,
-                    "hJ",
-                    boolean.class,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Rect rect = new Rect();
-                            String fileName =
-                                    Environment.getExternalStorageDirectory()
-                                            + File.separator
-                                            + "vuctrl"
-                                            + File.separator
-                                            + "QRCODE.jpg";
-                            Log.d("fileName", fileName);
-                            Bitmap bitmap = BitmapFactory.decodeFile(fileName);
-                            rect = new Canvas(bitmap).getClipBounds();
-                            param.setResult(rect);
-                        }
-                    });
+            /*findAndHookMethod(
+            "com.tencent.mm.plugin.scanner.ui.p",
+            lpparam.classLoader,
+            "hJ",
+            boolean.class,
+            new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Rect rect = new Rect();
+                    String fileName =
+                            Environment.getExternalStorageDirectory()
+                                    + File.separator
+                                    + "vuctrl"
+                                    + File.separator
+                                    + "QRCODE.jpg";
+                    Log.d("fileName", fileName);
+                    Bitmap bitmap = BitmapFactory.decodeFile(fileName);
+                    rect = new Canvas(bitmap).getClipBounds();
+                    param.setResult(rect);
+                }
+            });*/
 
+            // hook onResume方法
             findAndHookMethod(
-                    "com.tencent.mm.ui.MMBaseActivity",
-                    lpparam.classLoader,
-                    "onResume",
-                    new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("onResume", lpparam.getClass().getSimpleName());
-                        }
-
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("onResume", lpparam.getClass().getSimpleName());
-                        }
-                    });
-
-            findAndHookMethod(
-                    "com.tencent.mm.ui.MMFragmentActivity",
+                    "android.app.Activity",
                     lpparam.classLoader,
                     "onResume",
                     new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("onResume", lpparam.getClass().getSimpleName());
-                        }
 
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.d("onResume", lpparam.getClass().getSimpleName());
+                            Activity activity = (Activity) param.thisObject;
+                            Log.d("hook_onResume", activity.getLocalClassName());
                         }
                     });
 
-            getMethdAndParameter(lpparam, "com.tencent.mm.plugin.messenger.foundation.c");
+            // hook onResume方法
+            findAndHookMethod(
+                    "android.app.Activity",
+                    lpparam.classLoader,
+                    "onActivityResult",
+                    int.class,
+                    int.class,
+                    Intent.class,
+                    new XC_MethodHook() {
+
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Activity activity = (Activity) param.thisObject;
+                            Intent onActivityResultIntent = (Intent) param.args[2];
+                            Log.d(
+                                    "hook_onActivityResult",
+                                    activity.getLocalClassName()
+                                            + "\n"
+                                            + "requestCode="
+                                            + param.args[0]
+                                            + "\n"
+                                            + "resultCode="
+                                            + param.args[1]);
+                            if (onActivityResultIntent.getExtras() != null) {
+                                for (String s : onActivityResultIntent.getExtras().keySet()) {
+                                    String value =
+                                            onActivityResultIntent.getExtras().get(s) == null
+                                                    ? ""
+                                                    : onActivityResultIntent
+                                                            .getExtras()
+                                                            .get(s)
+                                                            .toString();
+
+                                    Log.d(activity.getLocalClassName() + " intent_key", s);
+                                    Log.d(
+                                            activity.getLocalClassName() + " intent_value",
+                                            value == null || value.trim().length() == 0
+                                                    ? " "
+                                                    : value);
+                                }
+
+                                Log.d(
+                                        activity.getLocalClassName() + " intent_end",
+                                        "======================================================");
+                            } else {
+                                Log.d(activity.getLocalClassName() + " intent_", "  ");
+                            }
+                        }
+                    });
+
+            //            getMethdAndParameter(lpparam,
+            // "com.tencent.mm.plugin.messenger.foundation.c");
 
             // hook接受消息方法，并打印出消息具体参数
-            Class<?> aVar = lpparam.classLoader.loadClass("com.tencent.mm.ae.d$a");
-            Class<?> rVar =
-                    lpparam.classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.r");
-            findAndHookMethod(
-                    "com.tencent.mm.plugin.messenger.foundation.c",
-                    lpparam.classLoader,
-                    "a",
-                    aVar,
-                    rVar,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
-                            Class aVar2 = param.args[0].getClass();
-                            Log.d("foundation_c", aVar2.toString());
-                            for (Field f : aVar2.getFields()) {
-                                Log.d("Field_name", f.getName());
-                                Log.d("Field_getDeclaringClass", f.getDeclaringClass().getName());
-                            }
-
-                            Object hmq = aVar2.getField("hmq").get(param.args[0]);
-                            Log.d("Field_name", hmq.getClass().getName());
-
-                            Class hmqClass = hmq.getClass();
-
-                            Object vGX = hmqClass.getField("vGX").get(hmq);
-                            Object from = vGX.getClass().getField("wJF").get(vGX);
-
-                            Object vGY = hmqClass.getField("vGY").get(hmq);
-                            Object to = vGY.getClass().getField("wJF").get(vGY);
-
-                            Object vHe = hmqClass.getField("vHe").get(hmq);
-
-                            Object vGW = hmqClass.getField("vGW").get(hmq);
-
-                            Object vHf = hmqClass.getField("vHf").get(hmq);
-
-                            Object ktm = hmqClass.getField("ktm").get(hmq);
-
-                            Object ngq = hmqClass.getField("ngq").get(hmq);
-
-                            Integer pbl = (Integer) hmqClass.getField("pbl").get(hmq);
-
-                            Object vHa = hmqClass.getField("vHa").get(hmq);
-
-                            Object vHb = hmqClass.getField("vHb").get(hmq);
-                            byte[] bytes = new byte[0];
-                            if (vHb != null) {
-                                Object wJD = vHb.getClass().getField("wJD").get(vHb);
-                                if (wJD != null) {
-                                    Method method = wJD.getClass().getMethod("toByteArray");
-                                    bytes = (byte[]) method.invoke(wJD);
-                                    Bitmap bitmap =
-                                            BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                    ImageUtils.saveImageToGallery(bitmap);
-                                }
-                            }
-
-                            String vHc = "";
-                            String vHd = "";
-                            Object OvHc = hmqClass.getField("vHc").get(hmq);
-                            if (OvHc != null) {
-                                vHc = OvHc.toString();
-                            }
-
-                            Object OvHd = hmqClass.getField("vHd").get(hmq);
-                            if (OvHd != null) {
-                                vHd = OvHd.toString();
-                            }
-
-                            Object vGZ = hmqClass.getField("vGZ").get(hmq);
-                            Object content = vGZ.getClass().getField("wJF").get(vGZ);
-
-                            Log.d("WXMessage", "from：" + from.toString() + "\n");
-                            Log.d("WXMessage", "to：" + to.toString() + "\n");
-                            Log.d("WXMessage", "id_1：" + vHe.toString() + "\n");
-                            Log.d("WXMessage", "id_2：" + vGW.toString() + "\n");
-                            Log.d("WXMessage", "id_3：" + vHf.toString() + "\n");
-                            Log.d("WXMessage", "status：" + ktm.toString() + "\n");
-                            Log.d("WXMessage", "type：" + ngq.toString() + "\n");
-                            Log.d("WXMessage", "time_1：" + pbl.toString() + "\n");
-                            Log.d(
-                                    "WXMessage",
-                                    "time_2："
-                                            + new SimpleDateFormat("[yy-MM-dd HH:mm:ss]")
-                                                    .format(
-                                                            new java.util.Date(
-                                                                    1000 * Long.valueOf(pbl)))
-                                            + "\n");
-                            Log.d(
-                                    "WXMessage",
-                                    "diff："
-                                            + (System.currentTimeMillis() / 1000
-                                                    - Long.valueOf(pbl))
-                                            + "\n");
-                            Log.d("WXMessage", "imgstatus：" + vHa.toString() + "\n");
-                            Log.d("WXMessage", "imgbuf：" + bytes.length + "\n");
-                            Log.d("WXMessage", "src：" + vHc.length() + "\n");
-                            Log.d("WXMessage", "push：" + vHd.length() + "\n");
-                            Log.d("WXMessage", "content：" + content.toString() + "\n");
-                        }
-                    });
+            //            Class<?> aVar = lpparam.classLoader.loadClass("com.tencent.mm.ae.d$a");
+            //            Class<?> rVar =
+            //
+            // lpparam.classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.r");
+            //            findAndHookMethod(
+            //                    "com.tencent.mm.plugin.messenger.foundation.c",
+            //                    lpparam.classLoader,
+            //                    "a",
+            //                    aVar,
+            //                    rVar,
+            //                    new XC_MethodHook() {
+            //                        @Override
+            //                        protected void afterHookedMethod(MethodHookParam param) throws
+            // Throwable {
+            //
+            //                            Class aVar2 = param.args[0].getClass();
+            //                            Log.d("foundation_c", aVar2.toString());
+            //                            for (Field f : aVar2.getFields()) {
+            //                                Log.d("Field_name", f.getName());
+            //                                Log.d("Field_getDeclaringClass",
+            // f.getDeclaringClass().getName());
+            //                            }
+            //
+            //                            Object hmq = aVar2.getField("hmq").get(param.args[0]);
+            //                            Log.d("Field_name", hmq.getClass().getName());
+            //
+            //                            Class hmqClass = hmq.getClass();
+            //
+            //                            Object vGX = hmqClass.getField("vGX").get(hmq);
+            //                            Object from = vGX.getClass().getField("wJF").get(vGX);
+            //
+            //                            Object vGY = hmqClass.getField("vGY").get(hmq);
+            //                            Object to = vGY.getClass().getField("wJF").get(vGY);
+            //
+            //                            Object vHe = hmqClass.getField("vHe").get(hmq);
+            //
+            //                            Object vGW = hmqClass.getField("vGW").get(hmq);
+            //
+            //                            Object vHf = hmqClass.getField("vHf").get(hmq);
+            //
+            //                            Object ktm = hmqClass.getField("ktm").get(hmq);
+            //
+            //                            Object ngq = hmqClass.getField("ngq").get(hmq);
+            //
+            //                            Integer pbl = (Integer) hmqClass.getField("pbl").get(hmq);
+            //
+            //                            Object vHa = hmqClass.getField("vHa").get(hmq);
+            //
+            //                            Object vHb = hmqClass.getField("vHb").get(hmq);
+            //                            byte[] bytes = new byte[0];
+            //                            if (vHb != null) {
+            //                                Object wJD = vHb.getClass().getField("wJD").get(vHb);
+            //                                if (wJD != null) {
+            //                                    Method method =
+            // wJD.getClass().getMethod("toByteArray");
+            //                                    bytes = (byte[]) method.invoke(wJD);
+            //                                    Bitmap bitmap =
+            //                                            BitmapFactory.decodeByteArray(bytes, 0,
+            // bytes.length);
+            //                                    ImageUtils.saveImageToGallery(bitmap);
+            //                                }
+            //                            }
+            //
+            //                            String vHc = "";
+            //                            String vHd = "";
+            //                            Object OvHc = hmqClass.getField("vHc").get(hmq);
+            //                            if (OvHc != null) {
+            //                                vHc = OvHc.toString();
+            //                            }
+            //
+            //                            Object OvHd = hmqClass.getField("vHd").get(hmq);
+            //                            if (OvHd != null) {
+            //                                vHd = OvHd.toString();
+            //                            }
+            //
+            //                            Object vGZ = hmqClass.getField("vGZ").get(hmq);
+            //                            Object content = vGZ.getClass().getField("wJF").get(vGZ);
+            //
+            //                            Log.d("WXMessage", "from：" + from.toString() + "\n");
+            //                            Log.d("WXMessage", "to：" + to.toString() + "\n");
+            //                            Log.d("WXMessage", "id_1：" + vHe.toString() + "\n");
+            //                            Log.d("WXMessage", "id_2：" + vGW.toString() + "\n");
+            //                            Log.d("WXMessage", "id_3：" + vHf.toString() + "\n");
+            //                            Log.d("WXMessage", "status：" + ktm.toString() + "\n");
+            //                            Log.d("WXMessage", "type：" + ngq.toString() + "\n");
+            //                            Log.d("WXMessage", "time_1：" + pbl.toString() + "\n");
+            //                            Log.d(
+            //                                    "WXMessage",
+            //                                    "time_2："
+            //                                            + new SimpleDateFormat("[yy-MM-dd
+            // HH:mm:ss]")
+            //                                                    .format(
+            //                                                            new java.util.Date(
+            //                                                                    1000 *
+            // Long.valueOf(pbl)))
+            //                                            + "\n");
+            //                            Log.d(
+            //                                    "WXMessage",
+            //                                    "diff："
+            //                                            + (System.currentTimeMillis() / 1000
+            //                                                    - Long.valueOf(pbl))
+            //                                            + "\n");
+            //                            Log.d("WXMessage", "imgstatus：" + vHa.toString() + "\n");
+            //                            Log.d("WXMessage", "imgbuf：" + bytes.length + "\n");
+            //                            Log.d("WXMessage", "src：" + vHc.length() + "\n");
+            //                            Log.d("WXMessage", "push：" + vHd.length() + "\n");
+            //                            Log.d("WXMessage", "content：" + content.toString() +
+            // "\n");
+            //                        }
+            //                    });
         }
     }
 
@@ -219,5 +308,4 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
             e.printStackTrace();
         }
     }
-
 }

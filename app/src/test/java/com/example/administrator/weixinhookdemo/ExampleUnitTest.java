@@ -1,5 +1,7 @@
 package com.example.administrator.weixinhookdemo;
 
+import com.blankj.utilcode.util.LogUtils;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
