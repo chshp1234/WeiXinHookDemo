@@ -57,6 +57,9 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                             Log.d("hook_onCreate", activity.getLocalClassName());
                             Intent intent = activity.getIntent();
                             if (intent.getExtras() != null) {
+                                Log.d(
+                                        activity.getLocalClassName() + " intent_start",
+                                        "======================onCreate=======================");
                                 for (String s : intent.getExtras().keySet()) {
                                     String value =
                                             intent.getExtras().get(s) == null
@@ -70,12 +73,6 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                                     ? " "
                                                     : value);
                                 }
-
-                                Log.d(
-                                        activity.getLocalClassName() + " intent_end",
-                                        "======================================================");
-                            } else {
-                                Log.d(activity.getLocalClassName() + " intent_", "  ");
                             }
                         }
                     });
@@ -141,6 +138,9 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                             + "resultCode="
                                             + param.args[1]);
                             if (onActivityResultIntent.getExtras() != null) {
+                                Log.d(
+                                        activity.getLocalClassName() + " intent_start",
+                                        "=====================onActivityResult=====================");
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
                                     String value =
                                             onActivityResultIntent.getExtras().get(s) == null
@@ -157,12 +157,6 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                                     ? " "
                                                     : value);
                                 }
-
-                                Log.d(
-                                        activity.getLocalClassName() + " intent_end",
-                                        "======================================================");
-                            } else {
-                                Log.d(activity.getLocalClassName() + " intent_", "  ");
                             }
                         }
                     });
