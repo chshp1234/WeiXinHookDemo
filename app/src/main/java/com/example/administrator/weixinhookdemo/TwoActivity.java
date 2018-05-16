@@ -15,6 +15,8 @@ import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * @author Administrator
@@ -31,6 +33,23 @@ public class TwoActivity extends AppCompatActivity {
 
 
         imageView = findViewById(R.id.videoThumb);
+
+        String url="http://weiyou-file.weiyoucrm.com/video/1523187247158.mp4";
+        String path = Environment.getExternalStorageDirectory() + File.separator+"video";
+        File filePath = new File(path);
+        if (!filePath.exists()){
+            filePath.mkdir();
+        }
+        String name = url.substring(url.lastIndexOf('/') + 1);
+        final File fileName = new File(filePath, name);
+        try {
+
+            //把服务器上图片下载到本地F盘的abc.jpg图片
+            org.apache.commons.io.FileUtils.copyURLToFile( new URL( url ) , fileName );
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         String vfile =
                 Environment.getExternalStorageDirectory() + File.separator + "1523187247158.mp4";
@@ -65,11 +84,11 @@ public class TwoActivity extends AppCompatActivity {
                     ThumbnailUtils.createVideoThumbnail(
                             vfile, MediaStore.Video.Thumbnails.MINI_KIND);
 
-            String thumbPath = ImageUtils.saveImageToGallery(b);
-            LogUtils.d("缩略图路径:" + thumbPath);
-            if (!StringUtils.isTrimEmpty(thumbPath)) {
-                ToastUtils.showShort("图片已保存至:" + thumbPath);
-            }
+//            String thumbPath = ImageUtils.saveImageToGallery(b);
+//            LogUtils.d("缩略图路径:" + thumbPath);
+//            if (!StringUtils.isTrimEmpty(thumbPath)) {
+//                ToastUtils.showShort("图片已保存至:" + thumbPath);
+//            }
 
             imageView.setImageBitmap(b);
         }

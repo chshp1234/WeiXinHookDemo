@@ -2,9 +2,11 @@ package com.example.administrator.weixinhookdemo;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
 
 import com.blankj.utilcode.util.Utils;
+import com.facebook.stetho.Stetho;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +18,13 @@ import java.util.List;
 public class MyApplication extends Application {
 
     public List<Activity> activityList;
+    public static Context context;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        context = this;
+        Stetho.initializeWithDefaults(this);
         Utils.init(this);
         activityList = new ArrayList<>();
         this.registerActivityLifecycleCallbacks(
@@ -49,5 +54,9 @@ public class MyApplication extends Application {
                         activityList.remove(activity);
                     }
                 });
+    }
+
+    public static Context getContext(){
+        return context;
     }
 }

@@ -38,5 +38,9 @@ dependencies {
     //butterknife
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    //Facebook开源的安卓调试框架
+    compile 'com.facebook.stetho:stetho:1.5.0'
+
+    compile files('libs/commons-io-2.6.jar')
 
 }
