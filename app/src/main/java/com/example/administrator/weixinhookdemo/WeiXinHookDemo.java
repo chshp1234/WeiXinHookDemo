@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
@@ -43,9 +44,17 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 
+        if ("com.example.administrator.weixinhookdemo".equals(lpparam.packageName)) {
+            findAndHookMethod(
+                    "com.example.administrator.weixinhookdemo.MainActivity",
+                    lpparam.classLoader,
+                    "isHooked",
+                    XC_MethodReplacement.returnConstant(true));
+        }
+
         if ("com.tencent.mm".equals(lpparam.packageName)) {
             // 打印日志
-            xposedLog663.findAndPrintLog(lpparam);
+                        xposedLog663.findAndPrintLog(lpparam);
 
             Class x = XposedHelpers.findClass("com.tencent.mm.storage.x", lpparam.classLoader);
             Class arp =
@@ -257,6 +266,103 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                     Log.d(activity.getLocalClassName() + "——intent_key", s);
                                     Log.d(
                                             activity.getLocalClassName() + "——intent_value",
+                                            value == null || value.trim().length() == 0
+                                                    ? " "
+                                                    : value);
+                                }
+                            }
+                        }
+                    });
+
+            findAndHookMethod(
+                    "com.tencent.mm.plugin.gallery.ui.AlbumPreviewUI",
+                    lpparam.classLoader,
+                    "onActivityResult",
+                    int.class,
+                    int.class,
+                    Intent.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Activity activity = (Activity) param.thisObject;
+                            Intent onActivityResultIntent = (Intent) param.args[2];
+                            Log.d(
+                                    activity.getLocalClassName() + "——hook_onActivityResult",
+                                    "=====================onActivityResult=====================");
+                            Log.d(
+                                    "hook_onActivityResult",
+                                    activity.getLocalClassName()
+                                            + "\n"
+                                            + "requestCode="
+                                            + param.args[0]
+                                            + "\n"
+                                            + "resultCode="
+                                            + param.args[1]);
+                            if (onActivityResultIntent != null
+                                    && onActivityResultIntent.getExtras() != null) {
+
+                                for (String s : onActivityResultIntent.getExtras().keySet()) {
+                                    String value =
+                                            onActivityResultIntent.getExtras().get(s) == null
+                                                    ? ""
+                                                    : onActivityResultIntent
+                                                            .getExtras()
+                                                            .get(s)
+                                                            .toString();
+
+                                    Log.d(activity.getLocalClassName() + "——intent_key", s);
+                                    Log.d(
+                                            activity.getLocalClassName() + "——intent_value",
+                                            value == null || value.trim().length() == 0
+                                                    ? " "
+                                                    : value);
+                                }
+                            }
+                        }
+                    });
+
+            findAndHookMethod(
+                    "com.tencent.mm.ui.chatting.ChattingUI$a",
+                    lpparam.classLoader,
+                    "onActivityResult",
+                    int.class,
+                    int.class,
+                    Intent.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            //                            Activity activity = (Activity)
+                            // param.thisObject;
+//                            String className = param.thisObject.getClass().getSimpleName();
+                            String className = "ChattingUI";
+                            Intent onActivityResultIntent = (Intent) param.args[2];
+                            Log.d(
+                                    className + "——hook_onActivityResult",
+                                    "=====================onActivityResult=====================");
+                            Log.d(
+                                    "hook_onActivityResult",
+                                    className
+                                            + "\n"
+                                            + "requestCode="
+                                            + param.args[0]
+                                            + "\n"
+                                            + "resultCode="
+                                            + param.args[1]);
+                            if (onActivityResultIntent != null
+                                    && onActivityResultIntent.getExtras() != null) {
+
+                                for (String s : onActivityResultIntent.getExtras().keySet()) {
+                                    String value =
+                                            onActivityResultIntent.getExtras().get(s) == null
+                                                    ? ""
+                                                    : onActivityResultIntent
+                                                            .getExtras()
+                                                            .get(s)
+                                                            .toString();
+
+                                    Log.d(className + "——intent_key", s);
+                                    Log.d(
+                                            className + "——intent_value",
                                             value == null || value.trim().length() == 0
                                                     ? " "
                                                     : value);

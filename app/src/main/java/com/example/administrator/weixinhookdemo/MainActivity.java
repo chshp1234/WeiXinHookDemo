@@ -1,33 +1,46 @@
 package com.example.administrator.weixinhookdemo;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.blankj.utilcode.util.EncodeUtils;
+import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.AppUtils;
+import com.blankj.utilcode.util.DeviceUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.PhoneUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.facebook.stetho.common.LogUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 public class MainActivity extends BaseActivity {
 
@@ -37,8 +50,44 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.jump)
     Button jump;
 
+    @BindView(R.id.install)
+    Button install;
+
+    @BindView(R.id.uninstall)
+    Button uninstall;
+
+    @BindView(R.id.reboot)
+    Button reboot;
+
+    private Handler timeHandler =
+            new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+
+                    LogUtils.d(msg.getData().getString("time") + " [百度]");
+                }
+            };
+
     @Override
     protected void initView() {
+        LogUtils.d("isHooked:" + isHooked());
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LogUtils.d("IMEI:" + PhoneUtils.getIMEI());
+
+        LogUtils.d("wechat_version:" + AppUtils.getAppVersionCode("com.tencent.mm"));
+        LogUtils.d("wechat_name:" + AppUtils.getAppVersionName("com.tencent.mm"));
+
         String fileName = Environment.getExternalStorageDirectory() + File.separator + "QRCODE.jpg";
 
         //        BitmapFactory.Options options = new BitmapFactory.Options();
@@ -51,7 +100,15 @@ public class MainActivity extends BaseActivity {
         //            e.printStackTrace();
         //        }
 
-        LogUtils.d(initDbPassword(initPhoneIMEI(),"1968249727"));
+        //        String webUrl1 = "http://www.bjtime.cn"; // bjTime
+        String webUrl2 = "http://www.baidu.com"; // 百度
+        //        String webUrl3 = "http://www.taobao.com"; // 淘宝
+        //        String webUrl4 = "http://www.ntsc.ac.cn"; // 中国科学院国家授时中心
+        //        String webUrl5 = "http://www.360.cn"; // 360
+        //        String webUrl6 = "http://www.beijing-time.org"; // beijing-time
+        getWebsiteDatetime(webUrl2);
+
+        LogUtils.d(initDbPassword(initPhoneIMEI(), "1968249727"));
 
         Bitmap bitmap = BitmapFactory.decodeFile(fileName);
         LogUtils.d(bitmap == null ? "null" : bitmap.getHeight());
@@ -60,6 +117,7 @@ public class MainActivity extends BaseActivity {
         imageView.setImageBitmap(bitmap);
         jump.setOnClickListener(
                 new View.OnClickListener() {
+                    @TargetApi(Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onClick(View v) {
                         try {
@@ -70,11 +128,9 @@ public class MainActivity extends BaseActivity {
                             Intent intent =
                                     new Intent(MainActivity.this, two.newInstance().getClass());
                             startActivityForResult(intent, 1);
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (InstantiationException e) {
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
+                        } catch (ClassNotFoundException
+                                | InstantiationException
+                                | IllegalAccessException e) {
                             e.printStackTrace();
                         }
                     }
@@ -84,9 +140,68 @@ public class MainActivity extends BaseActivity {
                 new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        Intent intent = new Intent(MainActivity.this, EncryptUtilsUi.class);
-                        startActivity(intent);
+                        //                        Intent intent = new Intent(MainActivity.this,
+                        // EncryptUtilsUi.class);
+                        //                        startActivity(intent);
+                        gotoWechat();
                         return false;
+                    }
+                });
+
+        AsyncTask.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtils.d("network:" + NetworkUtils.isConnected());
+                        LogUtils.d("isAvailableByPing:" + NetworkUtils.isAvailableByPing());
+                    }
+                });
+
+        install.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AsyncTask.execute(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        LogUtils.d("开始安装...");
+                                        LogUtils.d(
+                                                "静默安装："
+                                                        + InstallUtils.installAppSilent(
+                                                                Environment
+                                                                                .getExternalStorageDirectory()
+                                                                        + File.separator
+                                                                        + "SogouInput_android_v8.20.1_sweb.apk"));
+                                    }
+                                });
+                    }
+                });
+
+        uninstall.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AsyncTask.execute(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        LogUtils.d("开始卸载...");
+                                        LogUtils.d(
+                                                "静默卸载："
+                                                        + InstallUtils.uninstallAppSilent(
+                                                                "com.sohu.inputmethod.sogou",
+                                                                true));
+                                    }
+                                });
+                    }
+                });
+
+        reboot.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DeviceUtils.reboot();
                     }
                 });
     }
@@ -107,15 +222,14 @@ public class MainActivity extends BaseActivity {
         return runningActivity;
     }
 
-
-
     /**
      * 获取手机的imei码
      *
      * @return
      */
     private String initPhoneIMEI() {
-        TelephonyManager tm = (TelephonyManager) MyApplication.getContext().getSystemService(TELEPHONY_SERVICE);
+        TelephonyManager tm =
+                (TelephonyManager) MyApplication.getContext().getSystemService(TELEPHONY_SERVICE);
         return tm.getDeviceId();
     }
 
@@ -161,5 +275,62 @@ public class MainActivity extends BaseActivity {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * 获取指定网站的日期时间
+     *
+     * @param webUrl
+     * @return
+     * @author SHANHY
+     * @date 2015年11月27日
+     */
+    private void getWebsiteDatetime(final String webUrl) {
+        AsyncTask.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // 取得资源对象
+                            URL url = new URL(webUrl);
+                            // 生成连接对象
+                            URLConnection uc = url.openConnection();
+                            // 发出连接
+                            uc.connect();
+                            // 读取网站日期时间
+                            long ld = uc.getDate();
+                            // 转换为标准时间对象
+                            Date date = new Date(ld);
+                            // 输出北京时间
+                            SimpleDateFormat sdf =
+                                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+                            String time = sdf.format(date);
+
+                            Message msg = new Message();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("time", time);
+                            msg.what = 0;
+                            msg.setData(bundle);
+                            timeHandler.sendMessage(msg);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+    public void gotoWechat() {
+        Intent intent = new Intent();
+        ComponentName cmp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI");
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setComponent(cmp);
+        startActivity(intent);
+    }
+
+    private boolean isHooked() {
+        return false;
     }
 }
