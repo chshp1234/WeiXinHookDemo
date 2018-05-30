@@ -45,7 +45,7 @@ public class TwoActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.videoThumb);
 
-        /*String url="http://weiyou-file.weiyoucrm.com/video/1523187247158.mp4";
+      /*  String url="http://weiyou-file.weiyoucrm.com/video/1523187247158.mp4";
         String path = Environment.getExternalStorageDirectory() + File.separator+"video";
         File filePath = new File(path);
         if (!filePath.exists()){
@@ -112,7 +112,6 @@ public class TwoActivity extends AppCompatActivity {
             //            //            String thumbPath = ImageUtils.saveImageToGallery(b);
             //            //            LogUtils.d("缩略图路径:" + thumbPath);
             //            //            if (!StringUtils.isTrimEmpty(thumbPath)) {
-            //            //                ToastUtils.showShort("图片已保存至:" + thumbPath);
             //            //            }
             //
             //            imageView.setImageBitmap(b);

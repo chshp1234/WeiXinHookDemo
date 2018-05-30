@@ -21,14 +21,10 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-import com.blankj.utilcode.util.ActivityUtils;
-import com.blankj.utilcode.util.AppUtils;
-import com.blankj.utilcode.util.DeviceUtils;
+import com.blankj.utilcode.util.*;
 import com.blankj.utilcode.util.FileUtils;
-import com.blankj.utilcode.util.LogUtils;
-import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.PhoneUtils;
 import com.facebook.stetho.common.LogUtil;
 
 import java.io.File;
@@ -63,6 +59,8 @@ public class MainActivity extends BaseActivity {
             new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
+//                    Toast.makeText(MyApplication.getContext(),"哦",Toast.LENGTH_SHORT).show();
+
 
                     LogUtils.d(msg.getData().getString("time") + " [百度]");
                 }
@@ -143,19 +141,62 @@ public class MainActivity extends BaseActivity {
                         //                        Intent intent = new Intent(MainActivity.this,
                         // EncryptUtilsUi.class);
                         //                        startActivity(intent);
-                        gotoWechat();
+
                         return false;
                     }
                 });
+
+
 
         AsyncTask.execute(
                 new Runnable() {
                     @Override
                     public void run() {
+
                         LogUtils.d("network:" + NetworkUtils.isConnected());
                         LogUtils.d("isAvailableByPing:" + NetworkUtils.isAvailableByPing());
                     }
                 });
+
+        /*install.setOnClickListener(
+        new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AsyncTask.execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                LogUtils.d("开始安装...");
+                                LogUtils.d(
+                                        "静默安装："
+                                                + InstallUtils.installAppSilent(
+                                                        Environment
+                                                                        .getExternalStorageDirectory()
+                                                                + File.separator
+                                                                + "SogouInput_android_v8.20.1_sweb.apk"));
+                            }
+                        });
+            }
+        });*/
+
+        /*uninstall.setOnClickListener(
+        new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AsyncTask.execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                LogUtils.d("开始卸载...");
+                                LogUtils.d(
+                                        "静默卸载："
+                                                + InstallUtils.uninstallAppSilent(
+                                                        "com.sohu.inputmethod.sogou",
+                                                        true));
+                            }
+                        });
+            }
+        });*/
 
         install.setOnClickListener(
                 new View.OnClickListener() {
@@ -166,13 +207,10 @@ public class MainActivity extends BaseActivity {
                                     @Override
                                     public void run() {
                                         LogUtils.d("开始安装...");
-                                        LogUtils.d(
-                                                "静默安装："
-                                                        + InstallUtils.installAppSilent(
-                                                                Environment
-                                                                                .getExternalStorageDirectory()
-                                                                        + File.separator
-                                                                        + "SogouInput_android_v8.20.1_sweb.apk"));
+                                        AppUtils.installApp(
+                                                Environment.getExternalStorageDirectory()
+                                                        + File.separator
+                                                        + "SogouInput_android_v8.20.1_sweb.apk");
                                     }
                                 });
                     }
@@ -187,11 +225,7 @@ public class MainActivity extends BaseActivity {
                                     @Override
                                     public void run() {
                                         LogUtils.d("开始卸载...");
-                                        LogUtils.d(
-                                                "静默卸载："
-                                                        + InstallUtils.uninstallAppSilent(
-                                                                "com.sohu.inputmethod.sogou",
-                                                                true));
+                                        AppUtils.uninstallApp("com.tencent.mm");
                                     }
                                 });
                     }

@@ -35,7 +35,7 @@ abstract class BaseActivity extends SubActivity {
     /**
      * 获得布局ID
      *
-     * @return
+     * @return 布局ID
      */
     abstract int getContentId();
 

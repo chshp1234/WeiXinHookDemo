@@ -54,7 +54,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
             // 打印日志
-                        xposedLog663.findAndPrintLog(lpparam);
+            //                        xposedLog663.findAndPrintLog(lpparam);
 
             Class x = XposedHelpers.findClass("com.tencent.mm.storage.x", lpparam.classLoader);
             Class arp =
@@ -64,7 +64,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
             Class rVar =
                     lpparam.classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.r");
 
-            findAndHookMethod(
+            /*findAndHookMethod(
                     "com.tencent.mm.storage.ad",
                     lpparam.classLoader,
                     "S",
@@ -111,7 +111,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                                     .get(param.args[0])
                                                     .toString());
                         }
-                    });
+                    });*/
 
             findAndHookMethod(
                     "com.tencent.mm.plugin.messenger.foundation.f",
@@ -129,7 +129,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                         }
                     });
 
-            findAndHookMethod(
+            /*findAndHookMethod(
                     "com.tencent.mm.plugin.messenger.foundation.a",
                     lpparam.classLoader,
                     "a",
@@ -148,12 +148,17 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                             Log.d(
                                     "WXMessage_Strange?",
                                     "userName："
-                                            + wJF.toString()
-                                            + "\n"
-                                            + "encryptUsername："
-                                            + arp.getClass().getField("wzi").get(arp).toString());
+                                                            + wJF.toString()
+                                                            + "\n"
+                                                            + "encryptUsername："
+                                                            + arp.getClass()
+                                                                    .getField("wzi")
+                                                                    .get(arp)
+                                                    == null
+                                            ? ""
+                                            : arp.getClass().getField("wzi").get(arp).toString());
                         }
-                    });
+                    });*/
 
             // hook onCreate方法，并输出intent信息
             findAndHookMethod(
@@ -333,7 +338,8 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             //                            Activity activity = (Activity)
                             // param.thisObject;
-//                            String className = param.thisObject.getClass().getSimpleName();
+                            //                            String className =
+                            // param.thisObject.getClass().getSimpleName();
                             String className = "ChattingUI";
                             Intent onActivityResultIntent = (Intent) param.args[2];
                             Log.d(
