@@ -2,6 +2,7 @@ package com.example.administrator.weixinhookdemo;
 
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaExtractor;
@@ -18,6 +19,8 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.blankj.utilcode.util.LogUtils;
@@ -45,7 +48,22 @@ public class TwoActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.videoThumb);
 
-      /*  String url="http://weiyou-file.weiyoucrm.com/video/1523187247158.mp4";
+        String path =
+                Environment.getExternalStorageDirectory()
+                        + File.separator
+                        + "vuctrl"
+                        + File.separator
+                        + "CgAAQVlI524IAAAAAABTbOsLIIwAACbVQHV7qIAAFOE588.jpg";
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+        String type = options.outMimeType;
+        if (TextUtils.isEmpty(type)) {
+            type = "未能识别的图片";
+        }
+        LogUtils.d("image type -> " + type);
+
+        /*  String url="http://weiyou-file.weiyoucrm.com/video/1523187247158.mp4";
         String path = Environment.getExternalStorageDirectory() + File.separator+"video";
         File filePath = new File(path);
         if (!filePath.exists()){
@@ -63,9 +81,7 @@ public class TwoActivity extends AppCompatActivity {
         }*/
 
         final String vfile =
-                Environment.getExternalStorageDirectory()
-                        + File.separator
-                        + "sight_12811353156136874160.mp4";
+                Environment.getExternalStorageDirectory() + File.separator + "1526619352127.mp4";
 
         if (!StringUtils.isTrimEmpty(vfile) && new File(vfile).exists()) {
             //            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
@@ -160,6 +176,10 @@ public class TwoActivity extends AppCompatActivity {
             MediaFormat format = extractor.getTrackFormat(i);
             String mime = format.getString(MediaFormat.KEY_MIME);
             LogUtils.d("Extractor selected track " + i + " (" + mime + "): " + format);
+            if (mime.startsWith("video/")) {
+                //                LogUtils.i(format.getInteger(MediaFormat.KEY_MAX_WIDTH));
+                LogUtils.i(format.getInteger(MediaFormat.KEY_HEIGHT));
+            }
         }
         return numTracks;
     }

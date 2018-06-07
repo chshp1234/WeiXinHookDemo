@@ -1,25 +1,17 @@
 package com.example.administrator.weixinhookdemo;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
-import android.view.View;
 
-import com.blankj.utilcode.util.StringUtils;
+import com.blankj.utilcode.util.LogUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -28,7 +20,6 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 /**
@@ -54,7 +45,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
             // 打印日志
-            //                        xposedLog663.findAndPrintLog(lpparam);
+//            xposedLog663.findAndPrintLog(lpparam);
 
             Class x = XposedHelpers.findClass("com.tencent.mm.storage.x", lpparam.classLoader);
             Class arp =
@@ -63,6 +54,134 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
             Class aVar = lpparam.classLoader.loadClass("com.tencent.mm.ae.d$a");
             Class rVar =
                     lpparam.classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.r");
+            Class g$a = lpparam.classLoader.loadClass("com.tencent.mm.y.g$a");
+            Class a = lpparam.classLoader.loadClass("com.tencent.mm.y.a");
+            Class keep_SceneResult =
+                    lpparam.classLoader.loadClass("com.tencent.mm.modelcdntran.keep_SceneResult");
+
+            findAndHookMethod(
+                    "com.tencent.mm.y.g$a",
+                    lpparam.classLoader,
+                    "a",
+                    StringBuilder.class,
+                    g$a,
+                    String.class,
+                    keep_SceneResult,
+                    int.class,
+                    int.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            StringBuilder builder = (StringBuilder) param.args[0];
+                            if (builder != null) {
+                                Log.d("what_?", builder.toString());
+                            }
+                        }
+                    });
+
+            findAndHookMethod(
+                    "com.tencent.mm.modelcdntran.d",
+                    lpparam.classLoader,
+                    "a",
+                    String.class,
+                    long.class,
+                    String.class,
+                    String.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("what_?", param.getResult().toString());
+                        }
+                    });
+
+            // 网络请求函数...？
+            findAndHookMethod(
+                    "com.tencent.mm.plugin.report.service.g",
+                    lpparam.classLoader,
+                    "i",
+                    int.class,
+                    String.class,
+                    boolean.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d(
+                                    "what_?",
+                                    param.args[0] + " " + param.args[1] + " " + param.args[2]);
+                        }
+                    });
+
+            // 发送图片函数
+            findAndHookMethod(
+                    "com.tencent.mm.aq.i",
+                    lpparam.classLoader,
+                    "a",
+                    ArrayList.class,
+                    String.class,
+                    String.class,
+                    ArrayList.class,
+                    int.class,
+                    boolean.class,
+                    int.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            ArrayList arrayList = (ArrayList) param.args[0];
+                            Log.d(
+                                    "what_?",
+                                    param.args[0]
+                                            + "\n"
+                                            + param.args[1]
+                                            + "\n"
+                                            + param.args[2]
+                                            + "\n"
+                                            + param.args[3]
+                                            + "\n"
+                                            + param.args[4]
+                                            + "\n"
+                                            + param.args[5]
+                                            + "\n"
+                                            + param.args[6]
+                                            + "\n");
+                        }
+                    });
+
+            /*findAndHookMethod(
+            "com.tencent.mm.booter.ClickFlowReceiver",
+            lpparam.classLoader,
+            "onReceive",
+            Context.class,
+            Intent.class,
+            new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Context context = (Context) param.args[0];
+                    Intent intent = (Intent) param.args[1];
+                    Log.d(
+                            "ClickFlowReceiver——hook_BroadcastReceiver",
+                            "======================onReceive=======================");
+                    if (context != null) {
+                        Log.d(
+                                "ClickFlowReceiver——hook_BroadcastReceiver",
+                                context.getClass().getName());
+                    }
+                    if (intent.getExtras() != null) {
+                        for (String s : intent.getExtras().keySet()) {
+                            String value =
+                                    intent.getExtras().get(s) == null
+                                            ? ""
+                                            : intent.getExtras().get(s).toString();
+
+                            Log.d("ClickFlowReceiver——intent_key", s);
+                            Log.d(
+                                    "ClickFlowReceiver——intent_value",
+                                    value == null || value.trim().length() == 0
+                                            ? " "
+                                            : value);
+                        }
+                    }
+                }
+            });*/
 
             /*findAndHookMethod(
                     "com.tencent.mm.storage.ad",
@@ -130,35 +249,132 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                     });
 
             /*findAndHookMethod(
-                    "com.tencent.mm.plugin.messenger.foundation.a",
+            "com.tencent.mm.plugin.messenger.foundation.a",
+            lpparam.classLoader,
+            "a",
+            arp,
+            String.class,
+            byte[].class,
+            boolean.class,
+            boolean.class,
+            new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Object arp = param.args[0];
+                    Object bdo = arp.getClass().getField("vYI").get(arp);
+                    Object wJF = bdo.getClass().getField("wJF").get(bdo);
+
+                    Log.d(
+                            "WXMessage_Strange?",
+                            "userName："
+                                                    + wJF.toString()
+                                                    + "\n"
+                                                    + "encryptUsername："
+                                                    + arp.getClass()
+                                                            .getField("wzi")
+                                                            .get(arp)
+                                            == null
+                                    ? ""
+                                    : arp.getClass().getField("wzi").get(arp).toString());
+                }
+            });*/
+
+            XposedHelpers.findAndHookMethod(
+                    "android.app.Application",
                     lpparam.classLoader,
-                    "a",
-                    arp,
-                    String.class,
-                    byte[].class,
-                    boolean.class,
-                    boolean.class,
+                    "onCreate",
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Object arp = param.args[0];
-                            Object bdo = arp.getClass().getField("vYI").get(arp);
-                            Object wJF = bdo.getClass().getField("wJF").get(bdo);
+                            Application application = (Application) param.thisObject;
+                            application.registerActivityLifecycleCallbacks(
+                                    new Application.ActivityLifecycleCallbacks() {
+                                        @Override
+                                        public void onActivityCreated(
+                                                Activity activity, Bundle savedInstanceState) {
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——hook_onActivityCreated",
+                                                    "=======================onActivityCreated=======================");
+                                            //                                            Activity
+                                            // activity = (Activity) param.thisObject;
 
-                            Log.d(
-                                    "WXMessage_Strange?",
-                                    "userName："
-                                                            + wJF.toString()
+                                            Intent intent = activity.getIntent();
+
+                                            StringBuilder sb = new StringBuilder("");
+                                            if (intent.getExtras() != null) {
+                                                for (String s : intent.getExtras().keySet()) {
+                                                    String value =
+                                                            intent.getExtras().get(s) == null
+                                                                    ? ""
+                                                                    : intent.getExtras()
+                                                                            .get(s)
+                                                                            .toString();
+                                                    sb.append(s)
+                                                            .append(" = ")
+                                                            .append(value)
+                                                            .append("\n");
+                                                }
+                                            }
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——intent_key=value",
+                                                    sb.toString());
+                                        }
+
+                                        @Override
+                                        public void onActivityStarted(Activity activity) {
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——hook_onActivityStarted",
+                                                    "onActivityStarted");
+                                        }
+
+                                        @Override
+                                        public void onActivityResumed(Activity activity) {
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——hook_onActivityResumed",
+                                                    "onActivityResumed");
+                                        }
+
+                                        @Override
+                                        public void onActivityPaused(Activity activity) {
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——hook_onActivityPaused",
+                                                    "onActivityPaused");
+                                        }
+
+                                        @Override
+                                        public void onActivityStopped(Activity activity) {
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——hook_onActivityStopped",
+                                                    "onActivityStopped");
+                                        }
+
+                                        @Override
+                                        public void onActivitySaveInstanceState(
+                                                Activity activity, Bundle outState) {
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——hook_onActivitySaveInstanceState",
+                                                    "onActivitySaveInstanceState");
+                                        }
+
+                                        @Override
+                                        public void onActivityDestroyed(Activity activity) {
+                                            Log.d(
+                                                    activity.getLocalClassName()
+                                                            + "——hook_onActivityDestroyed",
+                                                    "=======================onActivityDestroyed======================="
                                                             + "\n"
-                                                            + "encryptUsername："
-                                                            + arp.getClass()
-                                                                    .getField("wzi")
-                                                                    .get(arp)
-                                                    == null
-                                            ? ""
-                                            : arp.getClass().getField("wzi").get(arp).toString());
+                                                            + " ");
+                                        }
+                                    });
                         }
-                    });*/
+                    });
 
             // hook onCreate方法，并输出intent信息
             findAndHookMethod(
@@ -168,29 +384,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                     Bundle.class,
                     new XC_MethodHook() {
                         @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Activity activity = (Activity) param.thisObject;
-                            Log.d(
-                                    activity.getLocalClassName() + "——hook_onCreate",
-                                    "======================onCreate=======================");
-                            Log.d("hook_onCreate", activity.getLocalClassName());
-                            Intent intent = activity.getIntent();
-                            if (intent.getExtras() != null) {
-                                for (String s : intent.getExtras().keySet()) {
-                                    String value =
-                                            intent.getExtras().get(s) == null
-                                                    ? ""
-                                                    : intent.getExtras().get(s).toString();
-
-                                    Log.d(activity.getLocalClassName() + "——intent_key", s);
-                                    Log.d(
-                                            activity.getLocalClassName() + "——intent_value",
-                                            value == null || value.trim().length() == 0
-                                                    ? " "
-                                                    : value);
-                                }
-                            }
-                        }
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {}
                     });
 
             // hook扫描二维码（失败）
@@ -225,8 +419,10 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Activity activity = (Activity) param.thisObject;
-                            Log.d("hook_onResume", activity.getLocalClassName());
+                            //                            Activity activity = (Activity)
+                            // param.thisObject;
+                            //                            Log.d("hook_onResume",
+                            // activity.getLocalClassName());
                         }
                     });
 
@@ -256,9 +452,9 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                             + "\n"
                                             + "resultCode="
                                             + param.args[1]);
+                            StringBuilder sb = new StringBuilder("");
                             if (onActivityResultIntent != null
                                     && onActivityResultIntent.getExtras() != null) {
-
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
                                     String value =
                                             onActivityResultIntent.getExtras().get(s) == null
@@ -267,15 +463,12 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                                             .getExtras()
                                                             .get(s)
                                                             .toString();
-
-                                    Log.d(activity.getLocalClassName() + "——intent_key", s);
-                                    Log.d(
-                                            activity.getLocalClassName() + "——intent_value",
-                                            value == null || value.trim().length() == 0
-                                                    ? " "
-                                                    : value);
+                                    sb.append(s).append(" = ").append(value).append("\n");
                                 }
                             }
+                            Log.d(
+                                    activity.getLocalClassName() + "——intent_key=value",
+                                    sb.toString());
                         }
                     });
 
@@ -303,9 +496,9 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                             + "\n"
                                             + "resultCode="
                                             + param.args[1]);
+                            StringBuilder sb = new StringBuilder("");
                             if (onActivityResultIntent != null
                                     && onActivityResultIntent.getExtras() != null) {
-
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
                                     String value =
                                             onActivityResultIntent.getExtras().get(s) == null
@@ -314,15 +507,12 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                                             .getExtras()
                                                             .get(s)
                                                             .toString();
-
-                                    Log.d(activity.getLocalClassName() + "——intent_key", s);
-                                    Log.d(
-                                            activity.getLocalClassName() + "——intent_value",
-                                            value == null || value.trim().length() == 0
-                                                    ? " "
-                                                    : value);
+                                    sb.append(s).append(" = ").append(value).append("\n");
                                 }
                             }
+                            Log.d(
+                                    activity.getLocalClassName() + "——intent_key=value",
+                                    sb.toString());
                         }
                     });
 
@@ -354,9 +544,9 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                             + "\n"
                                             + "resultCode="
                                             + param.args[1]);
+                            StringBuilder sb = new StringBuilder("");
                             if (onActivityResultIntent != null
                                     && onActivityResultIntent.getExtras() != null) {
-
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
                                     String value =
                                             onActivityResultIntent.getExtras().get(s) == null
@@ -365,15 +555,10 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                                             .getExtras()
                                                             .get(s)
                                                             .toString();
-
-                                    Log.d(className + "——intent_key", s);
-                                    Log.d(
-                                            className + "——intent_value",
-                                            value == null || value.trim().length() == 0
-                                                    ? " "
-                                                    : value);
+                                    sb.append(s).append(" = ").append(value).append("\n");
                                 }
                             }
+                            Log.d(className + "——intent_key=value", sb.toString());
                         }
                     });
 
@@ -507,3 +692,28 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
         }
     }
 }
+
+//            XposedHelpers.findAndHookMethod("android.support.v4.app.FragmentActivity", lpparam.classLoader, "onActivityResult",
+//                    int.class, int.class, Intent.class, new XC_MethodHook() {
+//                        @Override
+//                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                            int i = (int) param.args[0];
+//                            int i2 = (int) param.args[1];
+//                            Intent intent = (Intent) param.args[2];
+//                            Log.d("requestCode", i + "");
+//                            Log.d("resultCode", i2 + "");
+//
+//                            if (i == 10086) {
+//                                intent.putExtra("KSightPath", intent.getStringExtra("K_SEGMENTVIDEOPATH"));
+//                                intent.putExtra("KSightThumbPath", intent.getStringExtra("KSEGMENTVIDEOTHUMBPATH"));
+//                                intent.putExtra("sight_md5", XposedInit.bV(intent.getStringExtra("K_SEGMENTVIDEOPATH")));
+//                                intent.putExtra("KSnsPostManu", true);
+//                                intent.putExtra("KTouchCameraTime", System.currentTimeMillis() / 1000);
+//                                intent.putExtra("Ksnsupload_type", 14);
+//                                intent.putExtra("Kis_take_photo", false);
+//                                intent.setClassName(activitys.get(activitys.size() - 1).getPackageName(),
+//                                        "com.tencent.mm.plugin.sns.ui.SnsUploadUI");
+//                                context.startActivity(intent);
+//                            }
+//                        }
+//                    });

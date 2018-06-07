@@ -30,7 +30,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     //工具类库
-    compile 'com.blankj:utilcode:1.16.2'
+    compile 'com.blankj:utilcode:1.16.3'
     //xposed
     provided 'de.robv.android.xposed:api:82'
     //flexbox

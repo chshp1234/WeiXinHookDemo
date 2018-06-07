@@ -225,7 +225,7 @@ public class MainActivity extends BaseActivity {
                                     @Override
                                     public void run() {
                                         LogUtils.d("开始卸载...");
-                                        AppUtils.uninstallApp("com.tencent.mm");
+                                        AppUtils.uninstallAppSilent("com.tencent.mm", false, true);
                                     }
                                 });
                     }
@@ -238,6 +238,8 @@ public class MainActivity extends BaseActivity {
                         DeviceUtils.reboot();
                     }
                 });
+
+//        LogUtils.d(EncryptUtils.dea );
     }
 
     @Override
