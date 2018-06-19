@@ -144,8 +144,8 @@ public class TwoActivity extends AppCompatActivity {
                                 //
                                 // "http://weiyou-file.weiyoucrm.com/wyMaterial/2018/05/18/9/wx-vedio.mp4");
                                 //
-                                // extractor.setDataSource("http://weiyou-file.weiyoucrm.com/video/1526619352127.mp4");
-                                extractor.setDataSource(vfile);
+                                 extractor.setDataSource("http://weiyou-file.weiyoucrm.com/video/152661.mp4");
+//                                extractor.setDataSource(vfile);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

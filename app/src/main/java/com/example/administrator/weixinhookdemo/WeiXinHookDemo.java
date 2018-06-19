@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.LogUtils;
 
 import java.lang.reflect.Field;
@@ -13,6 +14,7 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -45,7 +47,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
             // 打印日志
-//            xposedLog663.findAndPrintLog(lpparam);
+            //            xposedLog663.findAndPrintLog(lpparam);
 
             Class x = XposedHelpers.findClass("com.tencent.mm.storage.x", lpparam.classLoader);
             Class arp =
@@ -58,6 +60,50 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
             Class a = lpparam.classLoader.loadClass("com.tencent.mm.y.a");
             Class keep_SceneResult =
                     lpparam.classLoader.loadClass("com.tencent.mm.modelcdntran.keep_SceneResult");
+
+            // 数据库操作
+            findAndHookMethod(
+                    "com.tencent.mm.by.h",
+                    lpparam.classLoader,
+                    "a",
+                    String.class,
+                    String[].class,
+                    String.class,
+                    String[].class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    int.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d(
+                                    "database_select",
+                                    "select "
+                                            + object2Log(param.args[1])
+                                            + "\n"
+                                            + "from "
+                                            + object2Log(param.args[0])
+                                            + "\n"
+                                            + "where "
+                                            + object2Log(param.args[2])
+                                            + "\n"
+                                            + "group by "
+                                            + object2Log(param.args[4])
+                                            + "\n"
+                                            + "having "
+                                            + object2Log(param.args[5])
+                                            + "\n"
+                                            + "order by "
+                                            + object2Log(param.args[6])
+                                            + "\n"
+                                            + "limit "
+                                            + " "
+                                            + "\n"
+                                            + object2Log(param.args[7])
+                                            + "\n");
+                        }
+                    });
 
             findAndHookMethod(
                     "com.tencent.mm.y.g$a",
@@ -107,7 +153,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             Log.d(
                                     "what_?",
-                                    param.args[0] + " " + param.args[1] + " " + param.args[2]);
+                                    param.args[0] + "\n" + param.args[1] + "\n" + param.args[2]);
                         }
                     });
 
@@ -691,9 +737,20 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
             e.printStackTrace();
         }
     }
+
+    public String object2Log(Object o) {
+        if (o == null) {
+            return "";
+        } else if (o instanceof Object[]) {
+            return Arrays.asList(o).toString();
+        } else {
+            return o.toString();
+        }
+    }
 }
 
-//            XposedHelpers.findAndHookMethod("android.support.v4.app.FragmentActivity", lpparam.classLoader, "onActivityResult",
+//            XposedHelpers.findAndHookMethod("android.support.v4.app.FragmentActivity",
+// lpparam.classLoader, "onActivityResult",
 //                    int.class, int.class, Intent.class, new XC_MethodHook() {
 //                        @Override
 //                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -704,16 +761,91 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 //                            Log.d("resultCode", i2 + "");
 //
 //                            if (i == 10086) {
-//                                intent.putExtra("KSightPath", intent.getStringExtra("K_SEGMENTVIDEOPATH"));
-//                                intent.putExtra("KSightThumbPath", intent.getStringExtra("KSEGMENTVIDEOTHUMBPATH"));
-//                                intent.putExtra("sight_md5", XposedInit.bV(intent.getStringExtra("K_SEGMENTVIDEOPATH")));
+//                                intent.putExtra("KSightPath",
+// intent.getStringExtra("K_SEGMENTVIDEOPATH"));
+//                                intent.putExtra("KSightThumbPath",
+// intent.getStringExtra("KSEGMENTVIDEOTHUMBPATH"));
+//                                intent.putExtra("sight_md5",
+// XposedInit.bV(intent.getStringExtra("K_SEGMENTVIDEOPATH")));
 //                                intent.putExtra("KSnsPostManu", true);
-//                                intent.putExtra("KTouchCameraTime", System.currentTimeMillis() / 1000);
+//                                intent.putExtra("KTouchCameraTime", System.currentTimeMillis() /
+// 1000);
 //                                intent.putExtra("Ksnsupload_type", 14);
 //                                intent.putExtra("Kis_take_photo", false);
-//                                intent.setClassName(activitys.get(activitys.size() - 1).getPackageName(),
+//                                intent.setClassName(activitys.get(activitys.size() -
+// 1).getPackageName(),
 //                                        "com.tencent.mm.plugin.sns.ui.SnsUploadUI");
 //                                context.startActivity(intent);
 //                            }
 //                        }
 //                    });
+
+/*
+        for (int i = 0; i < XposedInit.activitys.size(); i++) {
+        Log.d("activity_stack", XposedInit.activitys.get(i).getLocalClassName());
+        }
+
+        //开启更新页面
+//        intent.setClassName(XposedInit.activitys.get(XposedInit.activitys.size() - 1),
+//                "com.tencent.mm.sandbox.updater.AppInstallerUI");
+//        XposedInit.activitys.get(XposedInit.activitys.size() - 1).startActivity(intent);
+
+        //发送图片
+        */
+/*intent.setClassName(XposedInit.activitys.get(XposedInit.activitys.size() - 1),
+                "com.tencent.mm.ui.chatting.SendImgProxyUI");
+        XposedInit.activitys.get(XposedInit.activitys.size() - 1).startActivity(intent);*//*
+
+
+        Class homeUi = XposedHelpers.findClass("com.tencent.mm.ui.HomeUI", classLoader);
+        Class z = XposedHelpers.findClass("com.tencent.mm.ui.z", classLoader);
+        Class ChattingUI$a = XposedHelpers.findClass("com.tencent.mm.ui.chatting.ChattingUI$a", classLoader);
+        Class v1 = XposedHelpers.findClass("com.tencent.mm.ui.chatting.b.v$1", classLoader);
+
+        Class n = XposedHelpers.findClass("com.tencent.mm.aq.n", classLoader);
+
+        Object xGS=XposedHelpers.newInstance(homeUi);
+//        Object xGT = XposedHelpers.getObjectField(XposedInit.context, "xGT");
+        Object xGT = XposedHelpers.newInstance(z,xGS);
+        Object xLx = XposedHelpers.getObjectField(xGT, "xLx");
+//        Object xLx = XposedHelpers.newInstance(ChattingUI$a);
+        Object yvT = XposedHelpers.getObjectField(xLx, "yvT");
+        Object v1Object = XposedHelpers.newInstance(v1, yvT, intent, "wxid_l3bq5y4o45kt22", 217);
+        XposedHelpers.callMethod(v1Object, "aOk");
+
+//        Class i = XposedHelpers.findClass("com.tencent.mm.aq.i", classLoader);
+//        Object hCy = XposedHelpers.newInstance(i);
+//        Object hBY = XposedHelpers.callStaticMethod(n, "Pn");
+//        ArrayList lp = (ArrayList) XposedHelpers.callMethod(hBY, "lp", "csp594027259");
+//        if (lp==null){
+//            lp = new ArrayList();
+//        }else if (lp.size()==0){
+//            lp.add(200);
+//        }
+//        XposedHelpers.callMethod(hCy, "a", lp, "wxid_2fj5waxiuj0d22", "csp594027259",
+//                intent.getStringArrayListExtra("CropImage_OutputPath_List"), 0, false, 2130837979);
+
+//        XposedHelpers.callMethod(vObject, "aOk");
+
+        */
+/*AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3000L);
+                    Intent intent1 = new Intent("com.tencent.mm.Intent.ACTION_CLICK_FLOW_REPORT");
+                    intent1.putExtra("opCode", 4);
+                    intent1.putExtra("ui", XposedInit.activitys.get(XposedInit.activitys.size() - 1)
+                            .getComponentName().getClassName());
+                    intent1.putExtra("uiHashCode", XposedInit.activitys.get(XposedInit.activitys.size() - 1).hashCode());
+                    intent1.putExtra("nowMilliSecond", System.currentTimeMillis());
+                    intent1.putExtra("elapsedRealtime", SystemClock.elapsedRealtime());
+                    XposedInit.activitys.get(XposedInit.activitys.size() - 1).sendBroadcast(intent1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });*//*
+
+
+*/

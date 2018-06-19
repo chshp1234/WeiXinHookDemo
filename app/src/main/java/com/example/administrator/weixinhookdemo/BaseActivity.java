@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.blankj.utilcode.util.DeviceUtils;
 import com.blankj.utilcode.util.ToastUtils;
 
 import butterknife.ButterKnife;
