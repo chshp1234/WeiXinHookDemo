@@ -30,17 +30,15 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     //工具类库
-    compile 'com.blankj:utilcode:1.16.3'
+    compile 'com.blankj:utilcode:1.17.0'
     //xposed
     provided 'de.robv.android.xposed:api:82'
     //flexbox
-    compile 'com.google.android:flexbox:0.3.2'
+    compile 'com.google.android:flexbox:1.0.0'
     //butterknife
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     //Facebook开源的安卓调试框架
     compile 'com.facebook.stetho:stetho:1.5.0'
-
-    compile files('libs/commons-io-2.6.jar')
 
 }
