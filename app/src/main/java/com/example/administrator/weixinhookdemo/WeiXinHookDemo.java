@@ -1,10 +1,6 @@
 package com.example.administrator.weixinhookdemo;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.example.administrator.weixinhookdemo.xposed.PrintIntent;
@@ -13,15 +9,11 @@ import com.example.administrator.weixinhookdemo.xposed.PrintMessage667;
 import com.example.administrator.weixinhookdemo.xposed.XposedLog663;
 import com.example.administrator.weixinhookdemo.xposed.XposedLog667;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -40,6 +32,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
     XposedLog663 xposedLog663 = new XposedLog663();
     XposedLog667 xposedLog667 = new XposedLog667();
     public static String WECHAT_VERSION = "";
+    public static Context context;
     private boolean isLog = false;
     //    public static boolean
     // isLog=MyApplication.getContext().getSharedPreferences("",Context.MODE_PRIVATE).getBoolean("isWeChatLg",false);
@@ -87,7 +80,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
 
-            Context getVeresionContext =
+            context =
                     (Context)
                             callMethod(
                                     callStaticMethod(
@@ -97,10 +90,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                     "getSystemContext",
                                     new Object[0]);
             WECHAT_VERSION =
-                    getVeresionContext
-                            .getPackageManager()
-                            .getPackageInfo(lpparam.packageName, 0)
-                            .versionName;
+                    context.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionName;
 
             try {
                 XposedHelpers.findAndHookMethod(

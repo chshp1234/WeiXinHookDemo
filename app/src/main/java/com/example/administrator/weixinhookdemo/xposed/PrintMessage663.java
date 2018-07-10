@@ -16,11 +16,11 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 public class PrintMessage663 {
     public static void print(ClassLoader classLoader) throws ClassNotFoundException {
 
+        Class aVar = classLoader.loadClass("com.tencent.mm.ae.d$a");
+        Class rVar = classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.r");
         Class x = XposedHelpers.findClass("com.tencent.mm.storage.x", classLoader);
         Class arp = XposedHelpers.findClass("com.tencent.mm.protocal.c.arp", classLoader);
         Class ol = XposedHelpers.findClass("com.tencent.mm.protocal.c.ol", classLoader);
-        Class aVar = classLoader.loadClass("com.tencent.mm.ae.d$a");
-        Class rVar = classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.r");
         Class g$a = classLoader.loadClass("com.tencent.mm.y.g$a");
         Class a = classLoader.loadClass("com.tencent.mm.y.a");
         Class keep_SceneResult =
@@ -99,9 +99,11 @@ public class PrintMessage663 {
                             vHd = OvHd.toString();
                         }
 
+                        String content = "";
                         Object vGZ = hmqClass.getField("vGZ").get(hmq);
-                        Object content = vGZ.getClass().getField("wJF").get(vGZ);
-
+                        if (vGZ != null) {
+                            content = (String) vGZ.getClass().getField("wJF").get(vGZ);
+                        }
                         Log.d("WXMessage", "from：" + from.toString() + "\n");
                         Log.d("WXMessage", "to：" + to.toString() + "\n");
                         Log.d("WXMessage", "id_1：" + vHe.toString() + "\n");
@@ -130,7 +132,7 @@ public class PrintMessage663 {
                         Log.d("WXMessage", "src.length：" + vHc.length() + "\n");
                         Log.d("WXMessage", "push：" + vHd + "\n");
                         Log.d("WXMessage", "push.length：" + vHd.length() + "\n");
-                        Log.d("WXMessage", "content：" + content.toString() + "\n"+" ");
+                        Log.d("WXMessage", "content：" + content.toString() + "\n" + " ");
                     }
                 });
 
