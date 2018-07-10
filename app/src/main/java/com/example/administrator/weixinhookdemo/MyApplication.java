@@ -22,7 +22,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         context = this;
-        Stetho.initializeWithDefaults(this);
+//        Stetho.initializeWithDefaults(this);
         Utils.init(this);
     }
 

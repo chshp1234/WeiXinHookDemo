@@ -2,6 +2,7 @@ package com.example.administrator.weixinhookdemo;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -20,9 +21,12 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.blankj.utilcode.constant.PermissionConstants;
 import com.blankj.utilcode.util.*;
 import com.blankj.utilcode.util.FileUtils;
 import com.facebook.stetho.common.LogUtil;
@@ -34,14 +38,15 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
 
 public class MainActivity extends BaseActivity {
 
-    @BindView(R.id.qrcode)
-    ImageView imageView;
+    @BindView(R.id.wechat_log)
+    CheckBox wechatLog;
 
     @BindView(R.id.jump)
     Button jump;
@@ -55,33 +60,40 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.reboot)
     Button reboot;
 
+    private boolean isWeChatLg;
+
     private Handler timeHandler =
             new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
-//                    Toast.makeText(MyApplication.getContext(),"哦",Toast.LENGTH_SHORT).show();
-
-
                     LogUtils.d(msg.getData().getString("time") + " [百度]");
                 }
             };
 
     @Override
     protected void initView() {
-        LogUtils.d("isHooked:" + isHooked());
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+        if (SPUtils.getInstance().getBoolean("isWeChatLg")){
+            wechatLog.setChecked(true);
+            isWeChatLg = true;
+        }else {
+            wechatLog.setChecked(false);
+            isWeChatLg = false;
         }
-        LogUtils.d("IMEI:" + PhoneUtils.getIMEI());
+
+        wechatLog.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    isWeChatLg = isChecked;
+                    SPUtils.getInstance().put("isWeChatLg",isChecked);
+            }
+        });
+
+        LogUtils.d("isHooked:" + isHooked());
+//        LogUtils.d("15557939758",EncryptUtils.encryptMD5ToString("15557939758"));
+//        LogUtils.d(4 & 0x0f);
+
+//        LogUtils.d("IMEI:" + PhoneUtils.getIMEI());
 
         LogUtils.d("wechat_version:" + AppUtils.getAppVersionCode("com.tencent.mm"));
         LogUtils.d("wechat_name:" + AppUtils.getAppVersionName("com.tencent.mm"));
@@ -112,7 +124,7 @@ public class MainActivity extends BaseActivity {
         LogUtils.d(bitmap == null ? "null" : bitmap.getHeight());
         LogUtils.d("fileName: " + fileName);
         LogUtils.d("isFileExists: " + FileUtils.isFileExists(fileName));
-        imageView.setImageBitmap(bitmap);
+
         jump.setOnClickListener(
                 new View.OnClickListener() {
                     @TargetApi(Build.VERSION_CODES.KITKAT)

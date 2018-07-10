@@ -19,10 +19,12 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -80,6 +82,28 @@ public class TwoActivity extends AppCompatActivity {
             e.printStackTrace();
         }*/
 
+        AsyncTask.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        MediaExtractor extractor;
+                        //            MediaCodec decoder = null;
+                        extractor = new MediaExtractor();
+                        try {
+                            //                extractor.setDataSource(
+                            //
+                            // "http://weiyou-file.weiyoucrm.com/wyMaterial/2018/05/18/9/wx-vedio.mp4");
+                            //
+                            extractor.setDataSource("http://weiyou-file.weiyoucrm.com/video/152661.mp4");
+//                                extractor.setDataSource(vfile);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        int trackCount = selectTrack(extractor);
+                        LogUtils.d("trackCount:" + trackCount);
+                    }
+                });
+
         final String vfile =
                 Environment.getExternalStorageDirectory() + File.separator + "1526619352127.mp4";
 
@@ -132,27 +156,6 @@ public class TwoActivity extends AppCompatActivity {
             //
             //            imageView.setImageBitmap(b);
 
-            AsyncTask.execute(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            MediaExtractor extractor;
-                            //            MediaCodec decoder = null;
-                            extractor = new MediaExtractor();
-                            try {
-                                //                extractor.setDataSource(
-                                //
-                                // "http://weiyou-file.weiyoucrm.com/wyMaterial/2018/05/18/9/wx-vedio.mp4");
-                                //
-                                 extractor.setDataSource("http://weiyou-file.weiyoucrm.com/video/152661.mp4");
-//                                extractor.setDataSource(vfile);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            int trackCount = selectTrack(extractor);
-                            LogUtils.d("trackCount:" + trackCount);
-                        }
-                    });
 
             //            if (trackIndex < 0) {
             //                throw new RuntimeException("No video track found in " + vfile);

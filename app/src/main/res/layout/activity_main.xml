@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context="com.example.administrator.weixinhookdemo.MainActivity">
 
+    <CheckBox
+        android:id="@+id/wechat_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="微信日志开关"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="72dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <Button
         android:id="@+id/jump"
         android:layout_width="wrap_content"
@@ -15,16 +27,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/qrcode"
-        android:layout_width="368dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/jump"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="8dp" />
 
     <Button
         android:id="@+id/install"

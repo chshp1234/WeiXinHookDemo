@@ -1,4 +1,4 @@
-package com.example.administrator.weixinhookdemo;
+package com.example.administrator.weixinhookdemo.xposed;
 
 import android.util.Log;
 
