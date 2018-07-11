@@ -97,6 +97,7 @@ public class PrintMessage667 {
                         if (rcl != null) {
                             content = (String) rcl.getClass().getField("siM").get(rcl);
                         }
+
                         Log.d("WXMessage", "from：" + from.toString() + "\n");
                         Log.d("WXMessage", "to：" + to.toString() + "\n");
                         Log.d("WXMessage", "id_1：" + rcq.toString() + "\n");

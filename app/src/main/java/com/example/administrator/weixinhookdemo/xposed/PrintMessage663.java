@@ -104,6 +104,7 @@ public class PrintMessage663 {
                         if (vGZ != null) {
                             content = (String) vGZ.getClass().getField("wJF").get(vGZ);
                         }
+
                         Log.d("WXMessage", "from：" + from.toString() + "\n");
                         Log.d("WXMessage", "to：" + to.toString() + "\n");
                         Log.d("WXMessage", "id_1：" + vHe.toString() + "\n");
