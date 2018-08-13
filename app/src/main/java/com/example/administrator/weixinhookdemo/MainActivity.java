@@ -1,10 +1,12 @@
 package com.example.administrator.weixinhookdemo;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -13,13 +15,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RequiresPermission;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
@@ -41,12 +48,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
+
+import static android.Manifest.permission.READ_PHONE_STATE;
 
 public class MainActivity extends BaseActivity {
 
@@ -75,8 +85,27 @@ public class MainActivity extends BaseActivity {
                 }
             };
 
+    private String[] permissions =
+            new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_CONTACTS,
+                    Manifest.permission.WRITE_CONTACTS,
+            };
+
+    private static final int PERMISSION_REQUEST = 1;
+    private static final int PHONE_PERMISSION = 2;
+
     @Override
     protected void initView() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            checkPermission();
+        }else {
+            LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
+        }
+
 
         if (SPUtils.getInstance().getBoolean("isWeChatLg")) {
             wechatLog.setChecked(true);
@@ -124,7 +153,6 @@ public class MainActivity extends BaseActivity {
         //        String webUrl6 = "http://www.beijing-time.org"; // beijing-time
         getWebsiteDatetime(webUrl2);
 
-        LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
 
         Bitmap bitmap = BitmapFactory.decodeFile(fileName);
         LogUtils.d(bitmap == null ? "null" : bitmap.getHeight());
@@ -259,7 +287,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void initData() {}
+    protected void initData() {
+    }
 
     @Override
     int getContentId() {
@@ -279,6 +308,7 @@ public class MainActivity extends BaseActivity {
      *
      * @return
      */
+    @RequiresPermission(READ_PHONE_STATE)
     private String initPhoneIMEI() {
 
         TelephonyManager tm =
@@ -304,12 +334,11 @@ public class MainActivity extends BaseActivity {
         return tm.getDeviceId();
     }
 
-
     private Map<Integer, Object> values = null;
 
     public String getWeChatIMEI() {
         String filePath = "/data/user/0/com.tencent.mm/MicroMsg/CompatibleInfo.cfg";
-        LogUtils.d("filePath:"+getFilesDir().getParentFile().getAbsolutePath());
+        LogUtils.d("filePath:" + getFilesDir().getParentFile().getAbsolutePath());
         FileInputStream fileInputStream;
         ObjectInputStream objectInputStream;
         Throwable e;
@@ -537,5 +566,34 @@ public class MainActivity extends BaseActivity {
 
     private boolean isHooked() {
         return false;
+    }
+
+    private void checkPermission() {
+        if (!PermissionCheckUtil.hasReadPhoneState(this)) {
+            ActivityCompat.requestPermissions(this, permissions, PHONE_PERMISSION);
+        }
+        if (!PermissionCheckUtil.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            ActivityCompat.requestPermissions(this, permissions, 1);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSION_REQUEST:
+                Log.i("onRequestPermissionsResult", "onActivityResult: request code is : " + requestCode + " result code is : " + Arrays.toString(grantResults));
+//                LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
+                break;
+            case PHONE_PERMISSION:
+                Log.i("onRequestPermissionsResult", "onRequestPermissionsResult: phone permission");
+//                ((TextView) findViewById(R.id.imei)).setText(AppUtil.getImei());
+
+                LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
+                break;
+            default:
+                break;
+        }
+
     }
 }
