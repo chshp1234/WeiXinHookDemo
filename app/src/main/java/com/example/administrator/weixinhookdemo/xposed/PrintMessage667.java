@@ -129,5 +129,6 @@ public class PrintMessage667 {
                         Log.d("WXMessage", "content：" + content + "\n" + " ");
                     }
                 });
+
     }
 }

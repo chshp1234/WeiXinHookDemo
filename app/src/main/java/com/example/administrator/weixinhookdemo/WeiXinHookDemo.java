@@ -3,9 +3,13 @@ package com.example.administrator.weixinhookdemo;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.administrator.weixinhookdemo.xposed.PrintHookDemo663;
+import com.example.administrator.weixinhookdemo.xposed.PrintHookDemo667;
 import com.example.administrator.weixinhookdemo.xposed.PrintIntent;
 import com.example.administrator.weixinhookdemo.xposed.PrintMessage663;
 import com.example.administrator.weixinhookdemo.xposed.PrintMessage667;
+import com.example.administrator.weixinhookdemo.xposed.PrintSQL663;
+import com.example.administrator.weixinhookdemo.xposed.PrintSQL667;
 import com.example.administrator.weixinhookdemo.xposed.XposedLog663;
 import com.example.administrator.weixinhookdemo.xposed.XposedLog667;
 
@@ -14,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -55,9 +60,13 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
         switch (WECHAT_VERSION) {
             case "6.6.3":
                 PrintMessage663.print(classLoader);
+                PrintSQL663.print(classLoader);
+                PrintHookDemo663.print(classLoader);
                 break;
             case "6.6.7":
                 PrintMessage667.print(classLoader);
+                PrintSQL667.print(classLoader);
+                PrintHookDemo667.print(classLoader);
                 break;
             default:
                 break;

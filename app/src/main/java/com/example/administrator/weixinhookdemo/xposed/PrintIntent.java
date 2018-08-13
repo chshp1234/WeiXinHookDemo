@@ -11,14 +11,10 @@ import de.robv.android.xposed.XposedHelpers;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-/**
- * Created by Administrator on 2018/7/10.
- */
-
+/** Created by Administrator on 2018/7/10. */
 public class PrintIntent {
 
-    public static void print(ClassLoader classLoader){
-
+    public static void print(ClassLoader classLoader) {
 
         XposedHelpers.findAndHookMethod(
                 "android.app.Application",
@@ -33,6 +29,20 @@ public class PrintIntent {
                                     @Override
                                     public void onActivityCreated(
                                             Activity activity, Bundle savedInstanceState) {
+                                        Log.d(
+                                                "default_uin(mode=0)",
+                                                activity.getSharedPreferences(
+                                                                        "system_config_prefs", 0)
+                                                                .getInt("default_uin", 0)
+                                                        + "");
+
+                                        Log.d(
+                                                "default_uin(mode=4)",
+                                                activity.getSharedPreferences(
+                                                        "system_config_prefs", 4)
+                                                        .getInt("default_uin", 0)
+                                                        + "");
+
                                         Log.d(
                                                 activity.getLocalClassName()
                                                         + "——hook_onActivityCreated",
@@ -49,8 +59,8 @@ public class PrintIntent {
                                                         intent.getExtras().get(s) == null
                                                                 ? ""
                                                                 : intent.getExtras()
-                                                                .get(s)
-                                                                .toString();
+                                                                        .get(s)
+                                                                        .toString();
                                                 sb.append(s)
                                                         .append(" = ")
                                                         .append(value)
@@ -58,8 +68,7 @@ public class PrintIntent {
                                             }
                                         }
                                         Log.d(
-                                                activity.getLocalClassName()
-                                                        + "——intent_key=value",
+                                                activity.getLocalClassName() + "——intent_key=value",
                                                 sb.toString());
                                     }
 
@@ -178,15 +187,13 @@ public class PrintIntent {
                                         onActivityResultIntent.getExtras().get(s) == null
                                                 ? ""
                                                 : onActivityResultIntent
-                                                .getExtras()
-                                                .get(s)
-                                                .toString();
+                                                        .getExtras()
+                                                        .get(s)
+                                                        .toString();
                                 sb.append(s).append(" = ").append(value).append("\n");
                             }
                         }
-                        Log.d(
-                                activity.getLocalClassName() + "——intent_key=value",
-                                sb.toString());
+                        Log.d(activity.getLocalClassName() + "——intent_key=value", sb.toString());
                     }
                 });
 
@@ -222,62 +229,60 @@ public class PrintIntent {
                                         onActivityResultIntent.getExtras().get(s) == null
                                                 ? ""
                                                 : onActivityResultIntent
-                                                .getExtras()
-                                                .get(s)
-                                                .toString();
+                                                        .getExtras()
+                                                        .get(s)
+                                                        .toString();
                                 sb.append(s).append(" = ").append(value).append("\n");
                             }
                         }
-                        Log.d(
-                                activity.getLocalClassName() + "——intent_key=value",
-                                sb.toString());
+                        Log.d(activity.getLocalClassName() + "——intent_key=value", sb.toString());
                     }
                 });
 
         /*findAndHookMethod(
-            "com.tencent.mm.ui.chatting.ChattingUI$a",
-            lpparam.classLoader,
-            "onActivityResult",
-            int.class,
-            int.class,
-            Intent.class,
-            new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    //                            Activity activity = (Activity)
-                    // param.thisObject;
-                    //                            String className =
-                    // param.thisObject.getClass().getSimpleName();
-                    String className = "ChattingUI";
-                    Intent onActivityResultIntent = (Intent) param.args[2];
-                    Log.d(
-                            className + "——hook_onActivityResult",
-                            "=====================onActivityResult=====================");
-                    Log.d(
-                            "hook_onActivityResult",
-                            className
-                                    + "\n"
-                                    + "requestCode="
-                                    + param.args[0]
-                                    + "\n"
-                                    + "resultCode="
-                                    + param.args[1]);
-                    StringBuilder sb = new StringBuilder("");
-                    if (onActivityResultIntent != null
-                            && onActivityResultIntent.getExtras() != null) {
-                        for (String s : onActivityResultIntent.getExtras().keySet()) {
-                            String value =
-                                    onActivityResultIntent.getExtras().get(s) == null
-                                            ? ""
-                                            : onActivityResultIntent
-                                                    .getExtras()
-                                                    .get(s)
-                                                    .toString();
-                            sb.append(s).append(" = ").append(value).append("\n");
-                        }
+        "com.tencent.mm.ui.chatting.ChattingUI$a",
+        lpparam.classLoader,
+        "onActivityResult",
+        int.class,
+        int.class,
+        Intent.class,
+        new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                //                            Activity activity = (Activity)
+                // param.thisObject;
+                //                            String className =
+                // param.thisObject.getClass().getSimpleName();
+                String className = "ChattingUI";
+                Intent onActivityResultIntent = (Intent) param.args[2];
+                Log.d(
+                        className + "——hook_onActivityResult",
+                        "=====================onActivityResult=====================");
+                Log.d(
+                        "hook_onActivityResult",
+                        className
+                                + "\n"
+                                + "requestCode="
+                                + param.args[0]
+                                + "\n"
+                                + "resultCode="
+                                + param.args[1]);
+                StringBuilder sb = new StringBuilder("");
+                if (onActivityResultIntent != null
+                        && onActivityResultIntent.getExtras() != null) {
+                    for (String s : onActivityResultIntent.getExtras().keySet()) {
+                        String value =
+                                onActivityResultIntent.getExtras().get(s) == null
+                                        ? ""
+                                        : onActivityResultIntent
+                                                .getExtras()
+                                                .get(s)
+                                                .toString();
+                        sb.append(s).append(" = ").append(value).append("\n");
                     }
-                    Log.d(className + "——intent_key=value", sb.toString());
                 }
-            });*/
+                Log.d(className + "——intent_key=value", sb.toString());
+            }
+        });*/
     }
 }

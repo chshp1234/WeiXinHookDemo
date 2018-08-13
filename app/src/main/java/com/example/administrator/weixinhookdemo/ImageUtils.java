@@ -2,6 +2,7 @@ package com.example.administrator.weixinhookdemo;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -22,6 +23,7 @@ public class ImageUtils {
         if (!appDir.exists()) {
             appDir.mkdir();
         }
+
         String fileName = System.currentTimeMillis() + ".jpg";
         File file = new File(appDir, fileName);
         boolean isSuccess = false;

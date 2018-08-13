@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.RequiresApi;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.View;
@@ -20,21 +21,30 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.DeviceUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.PhoneUtils;
 import com.blankj.utilcode.util.SPUtils;
+import com.blankj.utilcode.util.ScreenUtils;
+import com.blankj.utilcode.util.ThreadUtils;
+import com.blankj.utilcode.util.UriUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 
@@ -89,7 +99,7 @@ public class MainActivity extends BaseActivity {
         //        LogUtils.d("15557939758",EncryptUtils.encryptMD5ToString("15557939758"));
         //        LogUtils.d(4 & 0x0f);
 
-        //        LogUtils.d("IMEI:" + PhoneUtils.getIMEI());
+        //                LogUtils.d("IMEI:" + PhoneUtils.getIMEI());
 
         LogUtils.d("wechat_version:" + AppUtils.getAppVersionCode("com.tencent.mm"));
         LogUtils.d("wechat_name:" + AppUtils.getAppVersionName("com.tencent.mm"));
@@ -114,7 +124,7 @@ public class MainActivity extends BaseActivity {
         //        String webUrl6 = "http://www.beijing-time.org"; // beijing-time
         getWebsiteDatetime(webUrl2);
 
-        LogUtils.d(initDbPassword(initPhoneIMEI(), "1968249727"));
+        LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
 
         Bitmap bitmap = BitmapFactory.decodeFile(fileName);
         LogUtils.d(bitmap == null ? "null" : bitmap.getHeight());
@@ -270,9 +280,162 @@ public class MainActivity extends BaseActivity {
      * @return
      */
     private String initPhoneIMEI() {
+
         TelephonyManager tm =
                 (TelephonyManager) MyApplication.getContext().getSystemService(TELEPHONY_SERVICE);
+        LogUtils.d("tm.getDeviceId():" + tm.getDeviceId());
+        LogUtils.d("tm.getImei():" + tm.getImei());
+        LogUtils.d("PhoneUtils.getIMEI():" + PhoneUtils.getIMEI());
+        LogUtils.d("PhoneUtils.getIMSI():" + PhoneUtils.getIMSI());
+        LogUtils.d("PhoneUtils.getMEID():" + PhoneUtils.getMEID());
+        LogUtils.d("getWeChatIMEI:" + getWeChatIMEI());
+        AsyncTask.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (values != null && values.size() > 0) {
+                            for (Integer integer : values.keySet()) {
+                                LogUtils.d(integer + ":" + values.get(integer));
+                            }
+                        }
+                    }
+                });
         return tm.getDeviceId();
+    }
+
+
+    private Map<Integer, Object> values = null;
+
+    public String getWeChatIMEI() {
+        String filePath = "/data/user/0/com.tencent.mm/MicroMsg/CompatibleInfo.cfg";
+        LogUtils.d("filePath:"+getFilesDir().getParentFile().getAbsolutePath());
+        FileInputStream fileInputStream;
+        ObjectInputStream objectInputStream;
+        Throwable e;
+        try {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            if (file.length() == 0) {
+                values = new HashMap();
+            } else {
+                fileInputStream = new FileInputStream(file);
+                try {
+                    objectInputStream = new ObjectInputStream(fileInputStream);
+                    try {
+                        values = (Map) objectInputStream.readObject();
+                        objectInputStream.close();
+                        fileInputStream.close();
+                        try {
+                            fileInputStream.close();
+                        } catch (Throwable e2) {
+                        }
+                        try {
+                            objectInputStream.close();
+                        } catch (Throwable e22) {
+                        }
+                    } catch (Exception e3) {
+                        e = e3;
+                        try {
+                            values = new HashMap();
+                            if (fileInputStream != null) {
+                                try {
+                                    fileInputStream.close();
+                                } catch (Throwable e222) {
+                                }
+                            }
+                            if (objectInputStream != null) {
+                                try {
+                                    objectInputStream.close();
+                                } catch (Throwable e2222) {
+                                }
+                            }
+                        } catch (Throwable th) {
+                            e = th;
+                            if (fileInputStream != null) {
+                                try {
+                                    fileInputStream.close();
+                                } catch (Throwable e4) {
+                                }
+                            }
+                            if (objectInputStream != null) {
+                                try {
+                                    objectInputStream.close();
+                                } catch (Throwable e5) {
+                                }
+                            }
+                            throw e;
+                        }
+                    }
+                } catch (Exception e6) {
+                    e = e6;
+                    objectInputStream = null;
+                    values = new HashMap();
+                    if (fileInputStream != null) {
+                        fileInputStream.close();
+                    }
+                    if (objectInputStream != null) {
+                        objectInputStream.close();
+                    }
+                } catch (Throwable th2) {
+                    e = th2;
+                    objectInputStream = null;
+                    if (fileInputStream != null) {
+                        fileInputStream.close();
+                    }
+                    if (objectInputStream != null) {
+                        objectInputStream.close();
+                    }
+                    throw e;
+                }
+            }
+        } catch (Exception e7) {
+            e = e7;
+            objectInputStream = null;
+            fileInputStream = null;
+            values = new HashMap();
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (objectInputStream != null) {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        } catch (Throwable th3) {
+            e = th3;
+            objectInputStream = null;
+            fileInputStream = null;
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (objectInputStream != null) {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            try {
+                throw e;
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+
+        return (String) values.get(Integer.valueOf(258));
     }
 
     /**
