@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -86,12 +88,12 @@ public class MainActivity extends BaseActivity {
             };
 
     private String[] permissions =
-            new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.READ_CONTACTS,
-                    Manifest.permission.WRITE_CONTACTS,
+            new String[] {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.WRITE_CONTACTS,
             };
 
     private static final int PERMISSION_REQUEST = 1;
@@ -100,12 +102,24 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initView() {
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
             checkPermission();
-        }else {
+        } else {
             LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
         }
 
+        if (NetworkUtils.getWifiEnabled() && NetworkUtils.isWifiConnected()) {
+            WifiManager wifiManager =
+                    (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            LogUtils.d("wifi:" + wifiInfo.getSSID());
+        } else if (NetworkUtils.isMobileData()) {
+            LogUtils.d("getNetworkOperatorName:" + NetworkUtils.getNetworkOperatorName());
+            LogUtils.d("getNetworkType:" + NetworkUtils.getNetworkType());
+        } else {
+            LogUtils.d("");
+        }
 
         if (SPUtils.getInstance().getBoolean("isWeChatLg")) {
             wechatLog.setChecked(true);
@@ -152,7 +166,6 @@ public class MainActivity extends BaseActivity {
         //        String webUrl5 = "http://www.360.cn"; // 360
         //        String webUrl6 = "http://www.beijing-time.org"; // beijing-time
         getWebsiteDatetime(webUrl2);
-
 
         Bitmap bitmap = BitmapFactory.decodeFile(fileName);
         LogUtils.d(bitmap == null ? "null" : bitmap.getHeight());
@@ -287,8 +300,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void initData() {
-    }
+    protected void initData() {}
 
     @Override
     int getContentId() {
@@ -578,22 +590,27 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PERMISSION_REQUEST:
-                Log.i("onRequestPermissionsResult", "onActivityResult: request code is : " + requestCode + " result code is : " + Arrays.toString(grantResults));
-//                LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
+                Log.i(
+                        "onRequestPermissionsResult",
+                        "onActivityResult: request code is : "
+                                + requestCode
+                                + " result code is : "
+                                + Arrays.toString(grantResults));
+                //                LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
                 break;
             case PHONE_PERMISSION:
                 Log.i("onRequestPermissionsResult", "onRequestPermissionsResult: phone permission");
-//                ((TextView) findViewById(R.id.imei)).setText(AppUtil.getImei());
+                //                ((TextView) findViewById(R.id.imei)).setText(AppUtil.getImei());
 
                 LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
                 break;
             default:
                 break;
         }
-
     }
 }
