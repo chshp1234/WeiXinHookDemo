@@ -24,8 +24,8 @@ public class PrintSQL667 {
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Log.d("hook_SQLiteDirectCursorDriver", "mEditTable=" + param.args[2]);
-                        Log.d("hook_SQLiteDirectCursorDriver", "mSql=" + param.args[1]);
+                        Log.d("SQLiteDirectCursorDriver", "mEditTable=" + param.args[2]);
+                        Log.d("SQLiteDirectCursorDriver", "mSql=" + param.args[1]);
                     }
                 });
     }

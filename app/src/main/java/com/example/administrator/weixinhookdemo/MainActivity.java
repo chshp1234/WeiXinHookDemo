@@ -33,6 +33,7 @@ import android.widget.TextView;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.DeviceUtils;
+import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -338,7 +339,7 @@ public class MainActivity extends BaseActivity {
 
                         if (values != null && values.size() > 0) {
                             for (Integer integer : values.keySet()) {
-                                LogUtils.d(integer + ":" + values.get(integer));
+                                LogUtils.d("key:" + integer, "values:" + values.get(integer));
                             }
                         }
                     }
@@ -349,7 +350,7 @@ public class MainActivity extends BaseActivity {
     private Map<Integer, Object> values = null;
 
     public String getWeChatIMEI() {
-        String filePath = "/data/user/0/com.tencent.mm/MicroMsg/CompatibleInfo.cfg";
+        String filePath = "/data/user/0/com.tencent.mm/MicroMsg/MM_stepcounter.cfg";
         LogUtils.d("filePath:" + getFilesDir().getParentFile().getAbsolutePath());
         FileInputStream fileInputStream;
         ObjectInputStream objectInputStream;

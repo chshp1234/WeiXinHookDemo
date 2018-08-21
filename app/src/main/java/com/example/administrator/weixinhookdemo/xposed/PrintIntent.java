@@ -29,19 +29,6 @@ public class PrintIntent {
                                     @Override
                                     public void onActivityCreated(
                                             Activity activity, Bundle savedInstanceState) {
-                                        Log.d(
-                                                "default_uin(mode=0)",
-                                                activity.getSharedPreferences(
-                                                                        "system_config_prefs", 0)
-                                                                .getInt("default_uin", 0)
-                                                        + "");
-
-                                        Log.d(
-                                                "default_uin(mode=4)",
-                                                activity.getSharedPreferences(
-                                                        "system_config_prefs", 4)
-                                                        .getInt("default_uin", 0)
-                                                        + "");
 
                                         Log.d(
                                                 activity.getLocalClassName()
@@ -66,6 +53,8 @@ public class PrintIntent {
                                                         .append(value)
                                                         .append("\n");
                                             }
+                                        } else {
+                                            sb.append("Intent.getExtras()==null");
                                         }
                                         Log.d(
                                                 activity.getLocalClassName() + "——intent_key=value",
@@ -110,7 +99,29 @@ public class PrintIntent {
                                         Log.d(
                                                 activity.getLocalClassName()
                                                         + "——hook_onActivitySaveInstanceState",
-                                                "onActivitySaveInstanceState");
+                                                "=========================onActivitySaveInstanceState====================");
+                                        Intent intent = activity.getIntent();
+
+                                        StringBuilder sb = new StringBuilder("");
+                                        if (intent.getExtras() != null) {
+                                            for (String s : intent.getExtras().keySet()) {
+                                                String value =
+                                                        intent.getExtras().get(s) == null
+                                                                ? ""
+                                                                : intent.getExtras()
+                                                                        .get(s)
+                                                                        .toString();
+                                                sb.append(s)
+                                                        .append(" = ")
+                                                        .append(value)
+                                                        .append("\n");
+                                            }
+                                        } else {
+                                            sb.append("Intent.getExtras()==null");
+                                        }
+                                        Log.d(
+                                                activity.getLocalClassName() + "——intent_key=value",
+                                                sb.toString());
                                     }
 
                                     @Override
@@ -180,18 +191,23 @@ public class PrintIntent {
                                         + "resultCode="
                                         + param.args[1]);
                         StringBuilder sb = new StringBuilder("");
-                        if (onActivityResultIntent != null
-                                && onActivityResultIntent.getExtras() != null) {
-                            for (String s : onActivityResultIntent.getExtras().keySet()) {
-                                String value =
-                                        onActivityResultIntent.getExtras().get(s) == null
-                                                ? ""
-                                                : onActivityResultIntent
-                                                        .getExtras()
-                                                        .get(s)
-                                                        .toString();
-                                sb.append(s).append(" = ").append(value).append("\n");
+                        if (onActivityResultIntent != null) {
+                            if (onActivityResultIntent.getExtras() != null) {
+                                for (String s : onActivityResultIntent.getExtras().keySet()) {
+                                    String value =
+                                            onActivityResultIntent.getExtras().get(s) == null
+                                                    ? ""
+                                                    : onActivityResultIntent
+                                                    .getExtras()
+                                                    .get(s)
+                                                    .toString();
+                                    sb.append(s).append(" = ").append(value).append("\n");
+                                }
+                            } else {
+                                sb.append("Intent.getExtras()==null");
                             }
+                        } else {
+                            sb.append("Intent==null");
                         }
                         Log.d(activity.getLocalClassName() + "——intent_key=value", sb.toString());
                     }
@@ -222,18 +238,70 @@ public class PrintIntent {
                                         + "resultCode="
                                         + param.args[1]);
                         StringBuilder sb = new StringBuilder("");
-                        if (onActivityResultIntent != null
-                                && onActivityResultIntent.getExtras() != null) {
-                            for (String s : onActivityResultIntent.getExtras().keySet()) {
-                                String value =
-                                        onActivityResultIntent.getExtras().get(s) == null
-                                                ? ""
-                                                : onActivityResultIntent
-                                                        .getExtras()
-                                                        .get(s)
-                                                        .toString();
-                                sb.append(s).append(" = ").append(value).append("\n");
+                        if (onActivityResultIntent != null) {
+                            if (onActivityResultIntent.getExtras() != null) {
+                                for (String s : onActivityResultIntent.getExtras().keySet()) {
+                                    String value =
+                                            onActivityResultIntent.getExtras().get(s) == null
+                                                    ? ""
+                                                    : onActivityResultIntent
+                                                    .getExtras()
+                                                    .get(s)
+                                                    .toString();
+                                    sb.append(s).append(" = ").append(value).append("\n");
+                                }
+                            } else {
+                                sb.append("Intent.getExtras()==null");
                             }
+                        } else {
+                            sb.append("Intent==null");
+                        }
+                        Log.d(activity.getLocalClassName() + "——intent_key=value", sb.toString());
+                    }
+                });
+
+        findAndHookMethod(
+                "com.tencent.mm.plugin.sns.ui.SettingSnsBackgroundUI",
+                classLoader,
+                "onActivityResult",
+                int.class,
+                int.class,
+                Intent.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Activity activity = (Activity) param.thisObject;
+                        Intent onActivityResultIntent = (Intent) param.args[2];
+                        Log.d(
+                                activity.getLocalClassName() + "——hook_onActivityResult",
+                                "=====================onActivityResult=====================");
+                        Log.d(
+                                "hook_onActivityResult",
+                                activity.getLocalClassName()
+                                        + "\n"
+                                        + "requestCode="
+                                        + param.args[0]
+                                        + "\n"
+                                        + "resultCode="
+                                        + param.args[1]);
+                        StringBuilder sb = new StringBuilder("");
+                        if (onActivityResultIntent != null) {
+                            if (onActivityResultIntent.getExtras() != null) {
+                                for (String s : onActivityResultIntent.getExtras().keySet()) {
+                                    String value =
+                                            onActivityResultIntent.getExtras().get(s) == null
+                                                    ? ""
+                                                    : onActivityResultIntent
+                                                            .getExtras()
+                                                            .get(s)
+                                                            .toString();
+                                    sb.append(s).append(" = ").append(value).append("\n");
+                                }
+                            } else {
+                                sb.append("Intent.getExtras()==null");
+                            }
+                        } else {
+                            sb.append("Intent==null");
                         }
                         Log.d(activity.getLocalClassName() + "——intent_key=value", sb.toString());
                     }

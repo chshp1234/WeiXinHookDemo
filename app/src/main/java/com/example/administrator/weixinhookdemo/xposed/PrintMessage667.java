@@ -1,5 +1,6 @@
 package com.example.administrator.weixinhookdemo.xposed;
 
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,12 +11,13 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedHelpers;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 /** Created by Administrator on 2018/7/10. */
 public class PrintMessage667 {
-    public static void print(ClassLoader classLoader) throws ClassNotFoundException {
+    public static void print(final ClassLoader classLoader) throws ClassNotFoundException {
 
         Class aVar = classLoader.loadClass("com.tencent.mm.ab.d$a");
         Class sVar = classLoader.loadClass("com.tencent.mm.plugin.messenger.foundation.a.s");
@@ -130,5 +132,22 @@ public class PrintMessage667 {
                     }
                 });
 
+        findAndHookMethod(
+                "com.tencent.mm.plugin.sns.ui.SettingSnsBackgroundUI",
+                classLoader,
+                "onResume",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.d(
+                                "getAccSnsTmpPath",
+                                String.valueOf(
+                                        XposedHelpers.callStaticMethod(
+                                                XposedHelpers.findClass(
+                                                        "com.tencent.mm.plugin.sns.model.af",
+                                                        classLoader),
+                                                "getAccSnsTmpPath")));
+                    }
+                });
     }
 }
