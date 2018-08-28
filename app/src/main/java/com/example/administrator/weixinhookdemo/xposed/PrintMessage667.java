@@ -1,10 +1,6 @@
 package com.example.administrator.weixinhookdemo.xposed;
 
-import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.example.administrator.weixinhookdemo.WeiXinHookDemo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

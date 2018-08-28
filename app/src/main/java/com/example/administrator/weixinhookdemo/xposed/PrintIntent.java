@@ -33,13 +33,13 @@ public class PrintIntent {
                                         Log.d(
                                                 activity.getLocalClassName()
                                                         + "——hook_onActivityCreated",
-                                                "=======================onActivityCreated=======================");
+                                                ""+"\n"+"=======================onActivityCreated=======================");
                                         //                                            Activity
                                         // activity = (Activity) param.thisObject;
 
                                         Intent intent = activity.getIntent();
 
-                                        StringBuilder sb = new StringBuilder("");
+                                        StringBuilder sb = new StringBuilder(""+"\n");
                                         if (intent.getExtras() != null) {
                                             for (String s : intent.getExtras().keySet()) {
                                                 String value =
@@ -99,10 +99,10 @@ public class PrintIntent {
                                         Log.d(
                                                 activity.getLocalClassName()
                                                         + "——hook_onActivitySaveInstanceState",
-                                                "=========================onActivitySaveInstanceState====================");
+                                                ""+"\n"+"=========================onActivitySaveInstanceState====================");
                                         Intent intent = activity.getIntent();
 
-                                        StringBuilder sb = new StringBuilder("");
+                                        StringBuilder sb = new StringBuilder(""+"\n");
                                         if (intent.getExtras() != null) {
                                             for (String s : intent.getExtras().keySet()) {
                                                 String value =
@@ -180,9 +180,9 @@ public class PrintIntent {
                         Intent onActivityResultIntent = (Intent) param.args[2];
                         Log.d(
                                 activity.getLocalClassName() + "——hook_onActivityResult",
-                                "=====================onActivityResult=====================");
+                                ""+"\n"+"=====================onActivityResult=====================");
                         Log.d(
-                                "hook_onActivityResult",
+                                "——hook_onActivityResult",
                                 activity.getLocalClassName()
                                         + "\n"
                                         + "requestCode="
@@ -190,7 +190,7 @@ public class PrintIntent {
                                         + "\n"
                                         + "resultCode="
                                         + param.args[1]);
-                        StringBuilder sb = new StringBuilder("");
+                        StringBuilder sb = new StringBuilder(""+"\n");
                         if (onActivityResultIntent != null) {
                             if (onActivityResultIntent.getExtras() != null) {
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
@@ -227,17 +227,17 @@ public class PrintIntent {
                         Intent onActivityResultIntent = (Intent) param.args[2];
                         Log.d(
                                 activity.getLocalClassName() + "——hook_onActivityResult",
-                                "=====================onActivityResult=====================");
+                                ""+"\n"+"=====================onActivityResult=====================");
                         Log.d(
-                                "hook_onActivityResult",
-                                activity.getLocalClassName()
+                                "——hook_onActivityResult",
+                                "\n"+activity.getLocalClassName()
                                         + "\n"
                                         + "requestCode="
                                         + param.args[0]
                                         + "\n"
                                         + "resultCode="
                                         + param.args[1]);
-                        StringBuilder sb = new StringBuilder("");
+                        StringBuilder sb = new StringBuilder(""+"\n");
                         if (onActivityResultIntent != null) {
                             if (onActivityResultIntent.getExtras() != null) {
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
@@ -274,17 +274,17 @@ public class PrintIntent {
                         Intent onActivityResultIntent = (Intent) param.args[2];
                         Log.d(
                                 activity.getLocalClassName() + "——hook_onActivityResult",
-                                "=====================onActivityResult=====================");
+                                "\n"+"=====================onActivityResult=====================");
                         Log.d(
-                                "hook_onActivityResult",
-                                activity.getLocalClassName()
+                                "——hook_onActivityResult",
+                                ""+"\n"+activity.getLocalClassName()
                                         + "\n"
                                         + "requestCode="
                                         + param.args[0]
                                         + "\n"
                                         + "resultCode="
                                         + param.args[1]);
-                        StringBuilder sb = new StringBuilder("");
+                        StringBuilder sb = new StringBuilder(""+"\n");
                         if (onActivityResultIntent != null) {
                             if (onActivityResultIntent.getExtras() != null) {
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {

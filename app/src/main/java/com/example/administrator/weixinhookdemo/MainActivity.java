@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -109,6 +110,9 @@ public class MainActivity extends BaseActivity {
         } else {
             LogUtils.d(initDbPassword(initPhoneIMEI(), "1297987475"));
         }
+
+//        SwipeRefreshLayout swipeRefreshLayout = new SwipeRefreshLayout(this);
+//        swipeRefreshLayout.setRefreshing(true);
 
         if (NetworkUtils.getWifiEnabled() && NetworkUtils.isWifiConnected()) {
             WifiManager wifiManager =

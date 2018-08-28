@@ -105,7 +105,7 @@ public class PrintMessage663 {
                             content = (String) vGZ.getClass().getField("wJF").get(vGZ);
                         }
 
-                        Log.d("WXMessage", "from：" + from.toString() + "\n");
+                        Log.d("WXMessage", "\n"+"from：" + from.toString() + "\n");
                         Log.d("WXMessage", "to：" + to.toString() + "\n");
                         Log.d("WXMessage", "id_1：" + vHe.toString() + "\n");
                         Log.d("WXMessage", "id_2：" + vGW.toString() + "\n");
@@ -230,6 +230,45 @@ public class PrintMessage663 {
                         Log.d(
                                 "what_?",
                                 param.args[0] + "\n" + param.args[1] + "\n" + param.args[2]);
+                    }
+                });
+
+        findAndHookMethod(
+                "com.tencent.mm.plugin.sns.model.ae",
+                classLoader,
+                "getAccSnsTmpPath",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        StringBuffer sb = new StringBuffer("");
+                        sb.append("===========start======================\n");
+                        sb.append(param.getResult().toString() + "\n");
+                        StackTraceElement[] elements = new Throwable().getStackTrace();
+                        for (StackTraceElement element : elements) {
+                            sb.append(
+                                    element.getClassName() + ": " + element.getMethodName() + "\n");
+                        }
+                        sb.append("====================end==================\n");
+                        sb.append(" \n");
+                        Log.i("getAccSnsTmpPath", sb.toString());
+                    }
+                });
+
+        findAndHookMethod(
+                "com.tencent.mm.ui.LauncherUI",
+                classLoader,
+                "onResume",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.d(
+                                "getAccSnsTmpPath",
+                                String.valueOf(
+                                        XposedHelpers.callStaticMethod(
+                                                XposedHelpers.findClass(
+                                                        "com.tencent.mm.plugin.sns.model.ae",
+                                                        classLoader),
+                                                "getAccSnsTmpPath")));
                     }
                 });
     }

@@ -23,7 +23,7 @@ public class PrintHookDemo667 {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         boolean b = (boolean) param.getResult();
-                        Log.d("hook_SnsHeader", String.valueOf(b));
+                        Log.d("——hook_SnsHeader", String.valueOf(b));
                         Class aj =
                                 XposedHelpers.findClass(
                                         "com.tencent.mm.plugin.sns.model.aj", classLoader);
@@ -31,7 +31,7 @@ public class PrintHookDemo667 {
                         List linkedList = new LinkedList();
                         for (int i = 0; i < byH.size(); i++) {
                             Object n = byH.get(i);
-                            Log.d("hook_field_type", String.valueOf(XposedHelpers.getIntField(n, "field_type")));
+                            Log.d("——hook_field_type", String.valueOf(XposedHelpers.getIntField(n, "field_type")));
                         }
                     }
                 });

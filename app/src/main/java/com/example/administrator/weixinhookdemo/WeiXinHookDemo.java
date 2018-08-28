@@ -74,7 +74,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
     }
 
     // log关键字
-    // ——intent_|hook_
+    // ——intent_|——hook_|WXMessage
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
