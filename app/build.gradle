@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "com.example.administrator.weixinhookdemo"
         minSdkVersion 21
-        targetSdkVersion 25
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -34,7 +34,7 @@ dependencies {
     implementation 'com.android.support:design:27.1.1'
     testImplementation 'junit:junit:4.12'
     //工具类库
-    implementation 'com.blankj:utilcode:1.19.0'
+    implementation 'com.blankj:utilcode:1.20.0'
     //xposed
     compileOnly 'de.robv.android.xposed:api:82'
     //flexbox

@@ -13,6 +13,7 @@ import com.example.administrator.weixinhookdemo.xposed.PrintSQL667;
 import com.example.administrator.weixinhookdemo.xposed.XposedLog663;
 import com.example.administrator.weixinhookdemo.xposed.XposedLog667;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -36,9 +38,10 @@ import static de.robv.android.xposed.XposedHelpers.findClass;
 public class WeiXinHookDemo implements IXposedHookLoadPackage {
     XposedLog663 xposedLog663 = new XposedLog663();
     XposedLog667 xposedLog667 = new XposedLog667();
+    XSharedPreferences xsp;
     public static String WECHAT_VERSION = "";
     public static Context context;
-    private boolean isLog = false;
+    private boolean isLog;
     //    public static boolean
     // isLog=MyApplication.getContext().getSharedPreferences("",Context.MODE_PRIVATE).getBoolean("isWeChatLg",false);
 
@@ -89,6 +92,12 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
 
+            xsp = new XSharedPreferences("com.example.administrator.weixinhookdemo", "spUtils");
+            xsp.makeWorldReadable();
+            xsp.reload();
+            isLog = xsp.getBoolean("isWeChatLg", false);
+            XposedBridge.log("是否开启日志：" + isLog);
+
             context =
                     (Context)
                             callMethod(
@@ -126,9 +135,9 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                             String className = stackTraceElement.getClassName();
                                             if (className == null
                                                     || !(className.contains(
-                                                                    "de.robv.android.xposed.XposedBridge")
-                                                            || className.contains(
-                                                                    "com.zte.heartyservice.SCC.FrameworkBridge"))) {
+                                                    "de.robv.android.xposed.XposedBridge")
+                                                    || className.contains(
+                                                    "com.zte.heartyservice.SCC.FrameworkBridge"))) {
                                                 arrayList.add(stackTraceElement);
                                             }
                                         }
@@ -149,6 +158,8 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                 a(Log.getStackTraceString(th));
             }
 
+//            XSharedPreferences
+
             // 打印日志
             if (isLog) {
                 printLog(lpparam);
@@ -159,10 +170,29 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
             // 打印接受的消息
             printMessage(lpparam.classLoader);
+
+            findAndHookMethod("java.io.OutputStream", lpparam.classLoader, "write",
+                    byte[].class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("OutputStream_write", new String((byte[]) param.args[0], "UTF-8"));
+//                            printCallStack();
+                        }
+                    });
+
+            findAndHookMethod("java.io.DataOutputStream", lpparam.classLoader, "writeBytes",
+                    String.class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.d("OutputStream_writeBytes", (String) param.args[0]);
+                        }
+                    });
         }
     }
 
-    /** 获取方法参数，并打印参数名、参数类型 */
+    /**
+     * 获取方法参数，并打印参数名、参数类型
+     */
     private void getMethdAndParameter(
             final XC_LoadPackage.LoadPackageParam param, String className) {
         try {
@@ -189,6 +219,20 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
     public static void a(String str) {
         Log.d("AntiPatch", str);
+    }
+
+    public static void printCallStack() {
+        Throwable ex = new Throwable();
+        StackTraceElement[] stackElements = ex.getStackTrace();
+        if (stackElements != null) {
+            for (int i = 0; i < stackElements.length; i++) {
+                Log.d("Stack", stackElements[i].getClassName() + "/t");
+                Log.d("Stack", stackElements[i].getFileName() + "/t");
+                Log.d("Stack", stackElements[i].getLineNumber() + "/t");
+                Log.d("Stack", stackElements[i].getMethodName());
+                Log.d("Stack", "-----------------------------------");
+            }
+        }
     }
 }
 

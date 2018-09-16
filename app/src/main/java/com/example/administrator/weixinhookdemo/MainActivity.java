@@ -2,10 +2,12 @@ package com.example.administrator.weixinhookdemo;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,6 +43,7 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.PhoneUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ScreenUtils;
+import com.blankj.utilcode.util.ShellUtils;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.UriUtils;
 
@@ -81,6 +84,7 @@ public class MainActivity extends BaseActivity {
 
     private boolean isWeChatLg;
 
+    private SharedPreferences sharedPreferences;
     private Handler timeHandler =
             new Handler() {
                 @Override
@@ -90,20 +94,41 @@ public class MainActivity extends BaseActivity {
             };
 
     private String[] permissions =
-            new String[] {
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.WRITE_CONTACTS,
+            new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_CONTACTS,
+                    Manifest.permission.WRITE_CONTACTS,
             };
 
     private static final int PERMISSION_REQUEST = 1;
     private static final int PHONE_PERMISSION = 2;
 
+    /**
+     * 截取字符串str中指定字符 strStart、strEnd之间的字符串
+     */
+    public static String subString(String str, String strStart, String strEnd) {
+
+        /* 找出指定的2个字符在 该字符串里面的 位置 */
+        int strStartIndex = str.indexOf(strStart);
+        int strEndIndex = str.indexOf(strEnd);
+
+        /* index 为负数 即表示该字符串中 没有该字符 */
+        if (strStartIndex < 0) {
+            return null;
+        }
+        if (strEndIndex < 0) {
+            return null;
+        }
+        /* 开始截取 */
+        return str.substring(strStartIndex, strEndIndex).substring(strStart.length());
+    }
+
     @Override
     protected void initView() {
-
+        sharedPreferences = getSharedPreferences("spUtils", Activity.MODE_WORLD_READABLE);
+//        DeviceUtils.reboot();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
             checkPermission();
@@ -113,6 +138,8 @@ public class MainActivity extends BaseActivity {
 
 //        SwipeRefreshLayout swipeRefreshLayout = new SwipeRefreshLayout(this);
 //        swipeRefreshLayout.setRefreshing(true);
+
+        NetworkUtils.getNetworkType();
 
         if (NetworkUtils.getWifiEnabled() && NetworkUtils.isWifiConnected()) {
             WifiManager wifiManager =
@@ -134,13 +161,21 @@ public class MainActivity extends BaseActivity {
             isWeChatLg = false;
         }
 
+        new Thread(() -> {
+            ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 5 115.236.185.100", false);
+            LogUtils.a(result.toString());
+            if (!TextUtils.isEmpty(result.successMsg)) {
+                LogUtils.a(subString(result.successMsg, "ttl=", "time="));
+                LogUtils.a(result.successMsg.substring(result.successMsg.lastIndexOf("packet") - 5, result.successMsg.lastIndexOf("packet")).replace(",", "").trim());
+                LogUtils.a(result.successMsg.substring(result.successMsg.indexOf("min/avg/max/mdev =")+1).trim());
+            }
+
+        }).start();
+
         wechatLog.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        isWeChatLg = isChecked;
-                        SPUtils.getInstance().put("isWeChatLg", isChecked);
-                    }
+                (buttonView, isChecked) -> {
+                    isWeChatLg = isChecked;
+                    sharedPreferences.edit().putBoolean("isWeChatLg", isChecked).commit();
                 });
 
         LogUtils.d("isHooked:" + isHooked());
@@ -305,7 +340,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void initData() {}
+    protected void initData() {
+    }
 
     @Override
     int getContentId() {
@@ -337,14 +373,10 @@ public class MainActivity extends BaseActivity {
         LogUtils.d("PhoneUtils.getMEID():" + PhoneUtils.getMEID());
         LogUtils.d("getWeChatIMEI:" + getWeChatIMEI());
         AsyncTask.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-
-                        if (values != null && values.size() > 0) {
-                            for (Integer integer : values.keySet()) {
-                                LogUtils.d("key:" + integer, "values:" + values.get(integer));
-                            }
+                () -> {
+                    if (values != null && values.size() > 0) {
+                        for (Integer integer : values.keySet()) {
+                            LogUtils.d("key:" + integer, "values:" + values.get(integer));
                         }
                     }
                 });
