@@ -10,8 +10,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Created by Administrator on 2018/2/26.
  */
 
-public class XposedLog667 {
-    private final String TAG = "XposedLog";
+public class XposedLog667_x {
+    private final String TAG = "sdk.platformtools.x";
     private final String LOG_METHOD = "com.tencent.mm.sdk.platformtools.x";
 
     private void printLog(StringBuffer sb) {
@@ -130,13 +130,13 @@ public class XposedLog667 {
                         initPrint(param);
                     }
                 });
-        XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
+        /*XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
                 "printErrStackTrace", String.class, Throwable.class, String.class, objectArray.getClass(), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         initPrint(param);
                     }
-                });
+                });*/
     }
 
 }

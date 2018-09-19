@@ -53,6 +53,27 @@ public class PrintHookDemo667 {
                     }
                 });
 
+        Class bon = XposedHelpers.findClass("com.tencent.mm.protocal.c.bon", classLoader);
+        XposedHelpers.findAndHookConstructor("com.tencent.mm.plugin.sns.model.r", classLoader, long.class, int.class, bon
+                , Object.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.i("sns_info_del_", String.valueOf(param.args[0]));
+                        Log.i("sns_info_del_", String.valueOf(param.args[1]));
+                        new Thread(() -> getObject(param.args[2])).start();
+                    }
+                });
+
+        XposedHelpers.findAndHookMethod("com.tencent.mm.api.a", classLoader, "cy",
+                String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        super.afterHookedMethod(param);
+                        Log.i("api_param?", String.valueOf(param.args[0]));
+                        Log.i("api_result?", String.valueOf(param.getResult()));
+                    }
+                });
+
     }
 
     public static final String byteToMd5(byte[] bArr) {
@@ -82,31 +103,33 @@ public class PrintHookDemo667 {
 
     public static void getObject(Object object) {
 
-        Log.i("get_object_" + object.getClass().getName(), " \n-------------------------------------------------------------------------------");
-        Field[] fields = object.getClass().getDeclaredFields();
-        for (int j = 0; j < fields.length; j++) {
-            boolean isObject = true;
-            String[] types1 = {"int", "java.lang.String", "boolean", "char", "float", "double", "long", "short", "byte"};
-            String[] types2 = {"Integer", "java.lang.String", "java.lang.Boolean", "java.lang.Character",
-                    "java.lang.Float", "java.lang.Double", "java.lang.Long", "java.lang.Short", "java.lang.Byte"};
-            try {
-                if (fields[j].get(object) != null) {
+        if (object != null) {
+            Log.i("get_object_" + object.getClass().getName(), " \n-------------------------------------------------------------------------------");
+            Field[] fields = object.getClass().getDeclaredFields();
+            for (int j = 0; j < fields.length; j++) {
+                boolean isObject = true;
+                String[] types1 = {"int", "java.lang.String", "boolean", "char", "float", "double", "long", "short", "byte"};
+                String[] types2 = {"Integer", "java.lang.String", "java.lang.Boolean", "java.lang.Character",
+                        "java.lang.Float", "java.lang.Double", "java.lang.Long", "java.lang.Short", "java.lang.Byte"};
+                try {
+                    if (fields[j].get(object) != null) {
 
-                    for (int i = 0; i < types1.length; i++) {
-                        if (fields[j].getType().getName()
-                                .equalsIgnoreCase(types1[i]) || fields[j].getType().getName().equalsIgnoreCase(types2[i])) {
+                        for (int i = 0; i < types1.length; i++) {
+                            if (fields[j].getType().getName()
+                                    .equalsIgnoreCase(types1[i]) || fields[j].getType().getName().equalsIgnoreCase(types2[i])) {
 
-                            Log.i("get_object_" + fields[j].getName(), String.valueOf(fields[j].get(object)));
-                            isObject = false;
+                                Log.i("get_object_" + fields[j].getName(), String.valueOf(fields[j].get(object)));
+                                isObject = false;
+                            }
+                        }
+                        if (isObject) {
+                            Log.i("get_object_name", fields[j].getName() + " \n ");
+                            getObject(fields[j].get(object));
                         }
                     }
-                    if (isObject) {
-                        Log.i("get_object_name", fields[j].getName() + " \n ");
-                        getObject(fields[j].get(object));
-                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }

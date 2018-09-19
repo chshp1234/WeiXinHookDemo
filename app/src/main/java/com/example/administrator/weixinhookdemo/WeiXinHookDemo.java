@@ -11,9 +11,11 @@ import com.example.administrator.weixinhookdemo.xposed.PrintMessage667;
 import com.example.administrator.weixinhookdemo.xposed.PrintSQL663;
 import com.example.administrator.weixinhookdemo.xposed.PrintSQL667;
 import com.example.administrator.weixinhookdemo.xposed.XposedLog663;
-import com.example.administrator.weixinhookdemo.xposed.XposedLog667;
+import com.example.administrator.weixinhookdemo.xposed.XposedLog667_TXLog;
+import com.example.administrator.weixinhookdemo.xposed.XposedLog667_log;
+import com.example.administrator.weixinhookdemo.xposed.XposedLog667_x;
+import com.example.administrator.weixinhookdemo.xposed.XposedLog667_xlog;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +39,10 @@ import static de.robv.android.xposed.XposedHelpers.findClass;
  */
 public class WeiXinHookDemo implements IXposedHookLoadPackage {
     XposedLog663 xposedLog663 = new XposedLog663();
-    XposedLog667 xposedLog667 = new XposedLog667();
+    XposedLog667_x xposedLog667 = new XposedLog667_x();
+    XposedLog667_xlog xposedLog667_xlog = new XposedLog667_xlog();
+    XposedLog667_log xposedLog667_log = new XposedLog667_log();
+    XposedLog667_TXLog xposedLog667TxLog = new XposedLog667_TXLog();
     XSharedPreferences xsp;
     public static String WECHAT_VERSION = "";
     public static Context context;
@@ -88,6 +93,36 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                     lpparam.classLoader,
                     "isHooked",
                     XC_MethodReplacement.returnConstant(true));
+        }
+
+        if ("com.tencent.wework.api".equals(lpparam.packageName)) {
+            xposedLog667_log.findAndPrintLog(lpparam);
+
+            XposedHelpers.findAndHookMethod("com.tencent.wework.api.WWAPIImpl", lpparam.classLoader, "adu",
+                    String.class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            Log.i("WWAPIImpl", String.valueOf(param.args[0]));
+                        }
+                    });
+
+            XposedHelpers.findAndHookMethod("com.tencent.wework.api.WWAPIImpl", lpparam.classLoader, "adt",
+                    String.class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            Log.i("WWAPIImpl", String.valueOf(param.args[0]));
+                        }
+                    });
+        }
+
+        if ("com.tencent.wcdb".equals(lpparam.packageName)) {
+            xposedLog667_xlog.findAndPrintLog(lpparam);
+        }
+
+        if ("com.tencent.rtmp".equals(lpparam.packageName)) {
+            xposedLog667TxLog.findAndPrintLog(lpparam);
         }
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
