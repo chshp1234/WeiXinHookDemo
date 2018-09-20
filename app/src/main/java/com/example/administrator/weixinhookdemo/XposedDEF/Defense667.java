@@ -12,7 +12,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class Defense667 {
 
-    public static void Defense(ClassLoader classLoader){
+    public static void Defense(ClassLoader classLoader) {
         try {
             XposedHelpers.findAndHookMethod("com.tencent.mm.app.p", classLoader, "a"
                     , StackTraceElement[].class, new XC_MethodReplacement() {

@@ -3,6 +3,8 @@ package com.example.administrator.weixinhookdemo;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.administrator.weixinhookdemo.XposedDEF.DefenseInit;
+import com.example.administrator.weixinhookdemo.xposed.HookLog.XposedLog667_Tinker;
 import com.example.administrator.weixinhookdemo.xposed.PrintHookDemo663;
 import com.example.administrator.weixinhookdemo.xposed.PrintHookDemo667;
 import com.example.administrator.weixinhookdemo.xposed.PrintIntent;
@@ -10,15 +12,13 @@ import com.example.administrator.weixinhookdemo.xposed.PrintMessage663;
 import com.example.administrator.weixinhookdemo.xposed.PrintMessage667;
 import com.example.administrator.weixinhookdemo.xposed.PrintSQL663;
 import com.example.administrator.weixinhookdemo.xposed.PrintSQL667;
-import com.example.administrator.weixinhookdemo.xposed.XposedLog663;
-import com.example.administrator.weixinhookdemo.xposed.XposedLog667_TXLog;
-import com.example.administrator.weixinhookdemo.xposed.XposedLog667_log;
-import com.example.administrator.weixinhookdemo.xposed.XposedLog667_x;
-import com.example.administrator.weixinhookdemo.xposed.XposedLog667_xlog;
+import com.example.administrator.weixinhookdemo.xposed.HookLog.XposedLog663;
+import com.example.administrator.weixinhookdemo.xposed.HookLog.XposedLog667_TXLog;
+import com.example.administrator.weixinhookdemo.xposed.HookLog.XposedLog667_log;
+import com.example.administrator.weixinhookdemo.xposed.HookLog.XposedLog667_x;
+import com.example.administrator.weixinhookdemo.xposed.HookLog.XposedLog667_xlog;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -43,6 +43,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
     XposedLog667_xlog xposedLog667_xlog = new XposedLog667_xlog();
     XposedLog667_log xposedLog667_log = new XposedLog667_log();
     XposedLog667_TXLog xposedLog667TxLog = new XposedLog667_TXLog();
+    XposedLog667_Tinker xposedLog667_tinker = new XposedLog667_Tinker();
     XSharedPreferences xsp;
     public static String WECHAT_VERSION = "";
     public static Context context;
@@ -117,6 +118,10 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                     });
         }
 
+        if ("com.tencent.tinker".equals(lpparam.packageName)) {
+            xposedLog667_tinker.findAndPrintLog(lpparam);
+        }
+
         if ("com.tencent.wcdb".equals(lpparam.packageName)) {
             xposedLog667_xlog.findAndPrintLog(lpparam);
         }
@@ -132,7 +137,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
             xsp.reload();
             isLog = xsp.getBoolean("isWeChatLg", false);
             XposedBridge.log("是否开启日志：" + isLog);
-
+            DefenseInit.getInstance().deleteWechatDex();
             context =
                     (Context)
                             callMethod(
@@ -144,54 +149,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
                                     new Object[0]);
             WECHAT_VERSION =
                     context.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionName;
-
-            try {
-                XposedHelpers.findAndHookMethod(
-                        Throwable.class,
-                        "getStackTrace",
-                        new XC_MethodReplacement() {
-
-                            @Override
-                            protected Object replaceHookedMethod(MethodHookParam methodHookParam) {
-                                int i = 0;
-                                try {
-                                    StackTraceElement[] stackTraceElementArr =
-                                            (StackTraceElement[])
-                                                    XposedBridge.invokeOriginalMethod(
-                                                            methodHookParam.method,
-                                                            methodHookParam.thisObject,
-                                                            methodHookParam.args);
-                                    Throwable th = (Throwable) methodHookParam.thisObject;
-                                    if (!(stackTraceElementArr == null
-                                            || stackTraceElementArr.length == 0)) {
-                                        List arrayList = new ArrayList();
-                                        for (StackTraceElement stackTraceElement :
-                                                stackTraceElementArr) {
-                                            String className = stackTraceElement.getClassName();
-                                            if (className == null
-                                                    || !(className.contains(
-                                                    "de.robv.android.xposed.XposedBridge")
-                                                    || className.contains(
-                                                    "com.zte.heartyservice.SCC.FrameworkBridge"))) {
-                                                arrayList.add(stackTraceElement);
-                                            }
-                                        }
-                                        Object[] obj = new StackTraceElement[arrayList.size()];
-                                        while (i < arrayList.size()) {
-                                            obj[i] = arrayList.get(i);
-                                            i++;
-                                        }
-                                        return obj;
-                                    }
-                                } catch (Throwable th2) {
-                                    a(Log.getStackTraceString(th2));
-                                }
-                                return null;
-                            }
-                        });
-            } catch (Throwable th) {
-                a(Log.getStackTraceString(th));
-            }
+            DefenseInit.getInstance().DefenseWX(lpparam.classLoader, WECHAT_VERSION);
 
 //            XSharedPreferences
 

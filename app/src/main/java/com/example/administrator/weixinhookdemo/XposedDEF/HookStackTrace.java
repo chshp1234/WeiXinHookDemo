@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -27,6 +28,22 @@ public class HookStackTrace {
     }
 
     private void a(ClassLoader classLoader) {
+        try {
+            XposedHelpers.findAndHookMethod("java.lang.String", classLoader, "contains"
+                    , CharSequence.class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            if ("Class ref in pre-verified class resolved to unexpected implementation".equals(param.args[0])) {
+                                param.setResult(false);
+                            }
+
+                        }
+                    });
+        } catch (Throwable throwable) {
+            XposedBridge.log(Log.getStackTraceString(throwable));
+        }
+
         try {
             XposedHelpers.findAndHookMethod(Throwable.class, "getStackTrace", new XC_MethodReplacement() {
 

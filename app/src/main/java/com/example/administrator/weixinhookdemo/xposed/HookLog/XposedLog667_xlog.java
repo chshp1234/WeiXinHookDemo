@@ -1,4 +1,4 @@
-package com.example.administrator.weixinhookdemo.xposed;
+package com.example.administrator.weixinhookdemo.xposed.HookLog;
 
 import android.util.Log;
 
@@ -10,9 +10,9 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Created by Administrator on 2018/2/26.
  */
 
-public class XposedLog667_log {
-    private final String TAG = "wework.api.utils.log";
-    private final String LOG_METHOD = "com.tencent.wework.api.utils.log";
+public class XposedLog667_xlog {
+    private final String TAG = "wcdb.support.Log";
+    private final String LOG_METHOD = "com.tencent.wcdb.support.Log";
 
     private void printLog(StringBuffer sb) {
         StackTraceElement[] elements = new Throwable().getStackTrace();
@@ -22,20 +22,12 @@ public class XposedLog667_log {
     }
 
     private void initPrint(XC_MethodHook.MethodHookParam param) {
-        String params1 = param.args[0].toString();
-        String params2 = param.args[1].toString();
+        String params1 = param.args[1].toString();
+        String params2 = param.args[2].toString();
         StringBuffer sb = new StringBuffer("");
         sb.append("===========start======================\n");
-        sb.append(params1).append(": ").append(params2 + "\n");
-        if (param.args.length > 2) {
-            if (param.args[2] != null) {
-                StackTraceElement[] elements = (StackTraceElement[]) param.args[2];
-                for (StackTraceElement element : elements) {
-                    sb.append(element.getClassName() + ": " + element.getMethodName() + "\n");
-                }
-
-            }
-        }
+        sb.append(params1).append(": ");
+        sb.append(params2).append(" \n ");
         printLog(sb);
         sb.append("====================end==================\n");
         sb.append(" \n");
@@ -68,41 +60,20 @@ public class XposedLog667_log {
 
     public void findAndPrintLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
-                "d", String.class, String.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        initPrint(param);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
-                "i", String.class, String.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        initPrint(param);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
-                "w", String.class, String.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        initPrint(param);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
-                "w", String.class, String.class, Throwable.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        initPrint(param);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
-                "e", String.class, String.class, Throwable.class, new XC_MethodHook() {
+                "println", int.class, String.class, String.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         initPrint(param);
                     }
                 });
 
+        XposedHelpers.findAndHookMethod(LOG_METHOD, loadPackageParam.classLoader,
+                "nativePrintLn", int.class, String.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        initPrint(param);
+                    }
+                });
 
     }
 
