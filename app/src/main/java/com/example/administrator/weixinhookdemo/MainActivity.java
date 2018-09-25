@@ -44,6 +44,7 @@ import com.blankj.utilcode.util.PhoneUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.ShellUtils;
+import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.UriUtils;
 
@@ -60,6 +61,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 
@@ -118,6 +121,7 @@ public class MainActivity extends BaseActivity {
         if (strStartIndex < 0) {
             return null;
         }
+
         if (strEndIndex < 0) {
             return null;
         }
@@ -127,6 +131,9 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initView() {
+        stringLength("是的、-——合法比武的回复");
+        stringLength("~~~~~");
+
         sharedPreferences = getSharedPreferences("spUtils", Activity.MODE_WORLD_READABLE);
 //        DeviceUtils.reboot();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
@@ -167,7 +174,7 @@ public class MainActivity extends BaseActivity {
             if (!TextUtils.isEmpty(result.successMsg)) {
                 LogUtils.a(subString(result.successMsg, "ttl=", "time="));
                 LogUtils.a(result.successMsg.substring(result.successMsg.lastIndexOf("packet") - 5, result.successMsg.lastIndexOf("packet")).replace(",", "").trim());
-                LogUtils.a(result.successMsg.substring(result.successMsg.indexOf("min/avg/max/mdev =")+1).trim());
+                LogUtils.a(result.successMsg.substring(result.successMsg.indexOf("min/avg/max/mdev =") + 1).trim());
             }
 
         }).start();
@@ -649,5 +656,52 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
+    }
+
+    /**
+     * 计算字符串长度
+     */
+    public static int stringLength(String str) {
+        int i = 0;
+        if (TextUtils.isEmpty(str)) {
+            return 0;
+        }
+        int length = str.length() + matchChinese(str);
+        if (!TextUtils.isEmpty(str)) {
+            int i2 = 0;
+            int basicLatin = 0;
+            while (i2 < str.length()) {
+                char charAt = str.charAt(i2);
+                i = (charAt < '\u0000' || charAt > '\u007f') ? basicLatin : basicLatin + 1;
+                i2++;
+                basicLatin = i;
+            }
+            i = str.length() - (matchChinese(str) + basicLatin);
+            LogUtils.a("str.length()", str.length());
+            LogUtils.a("matchChinese", matchChinese(str));
+            LogUtils.a("basicLatin", basicLatin);
+            LogUtils.a("i", i);
+            LogUtils.a("length", length);
+            LogUtils.a("i + length", i + length);
+//
+        }
+        return i + length;
+    }
+
+    /**
+     * 匹配中文
+     */
+    public static int matchChinese(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return 0;
+        }
+        Matcher matcher = Pattern.compile("[\\u4e00-\\u9fa5]").matcher(str);
+        int i = 0;
+        while (matcher.find()) {
+            for (int i2 = 0; i2 <= matcher.groupCount(); i2++) {
+                i++;
+            }
+        }
+        return i;
     }
 }

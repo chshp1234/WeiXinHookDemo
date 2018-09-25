@@ -13,6 +13,8 @@ import java.util.Set;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 
+import static com.example.administrator.weixinhookdemo.WeiXinHookDemo.printCallStack;
+
 /**
  * Created by Administrator on 2018/8/13.
  */
@@ -79,6 +81,8 @@ public class PrintSQL667 {
                         }
                         Log.i("SQLiteDirect_rawQueryWithFactory", String.valueOf(param.args[3]));
 
+//                        printCallStack("SQLiteDirect_executeSql");
+
                     }
                 });
 
@@ -95,6 +99,8 @@ public class PrintSQL667 {
                                 }
                             }
                         }
+
+                        printCallStack("SQLiteDirect_executeSql");
 
                     }
                 });
@@ -148,27 +154,11 @@ public class PrintSQL667 {
 
                             }
                         }
-                        if ("SnsComment".equalsIgnoreCase((String) param.args[0])) {
+                        if ("SnsComment".equalsIgnoreCase((String) param.args[0]) || "SnsInfo".equalsIgnoreCase((String) param.args[0])) {
                             if (objArr != null && objArr.length > 0) {
-                                Object o = objArr[1];
-                                Log.d("SQLiteDirect_insertWithOnConflict_refActionBuf", "-------------------------------\n");
-                                Log.d("SQLiteDirect_insertWithOnConflict_refActionBuf", o.getClass().getCanonicalName());
-                                PrintHookDemo667.getObject(o);
-                                Log.d("SQLiteDirect_insertWithOnConflict_refActionBuf", "-------------------------------\n");
-                                Object o2 = objArr[7];
-                                Log.d("SQLiteDirect_insertWithOnConflict_curActionBuf", "-------------------------------\n");
-                                Log.d("SQLiteDirect_insertWithOnConflict_curActionBuf", o2.getClass().getCanonicalName());
-                                PrintHookDemo667.getObject(o2);
-                                Log.d("SQLiteDirect_insertWithOnConflict_curActionBuf", "-------------------------------\n");
-
-                                StringBuilder sb = new StringBuilder();
-                                StackTraceElement[] elements = new Throwable().getStackTrace();
-                                for (StackTraceElement element : elements) {
-                                    sb.append(element.getClassName() + ": " + element.getMethodName() + "\n");
-                                }
-                                Log.d("SQLiteDirect_insertWithOnConflict_curActionBuf", sb.toString()+"\n");
-
                             }
+
+                            printCallStack("SQLiteDirect_insertWithOnConflict");
                         }
                     }
                 });
@@ -215,27 +205,11 @@ public class PrintSQL667 {
                             }
                         }
 
-                        if ("SnsComment".equalsIgnoreCase((String) param.args[0])) {
+                        if ("SnsComment".equalsIgnoreCase((String) param.args[0]) || "SnsInfo".equalsIgnoreCase((String) param.args[0])) {
                             if (objArr != null && objArr.length > 0) {
-                                Object o = objArr[6];
-                                Log.e("SQLiteDirect_updateWithOnConflict_refActionBuf", "-------------------------------\n");
-                                Log.e("SQLiteDirect_updateWithOnConflict_refActionBuf", o.getClass().getCanonicalName());
-                                PrintHookDemo667.getObject(o);
-                                Log.e("SQLiteDirect_updateWithOnConflict_refActionBuf", "-------------------------------\n");
-
-                                Object o2 = objArr[2];
-                                Log.e("SQLiteDirect_updateWithOnConflict_curActionBuf", "-------------------------------\n");
-                                Log.e("SQLiteDirect_updateWithOnConflict_curActionBuf", o2.getClass().getCanonicalName());
-                                PrintHookDemo667.getObject(o2);
-                                Log.e("SQLiteDirect_updateWithOnConflict_curActionBuf", "-------------------------------\n");
                             }
 
-                            StringBuilder sb = new StringBuilder();
-                            StackTraceElement[] elements = new Throwable().getStackTrace();
-                            for (StackTraceElement element : elements) {
-                                sb.append(element.getClassName() + ": " + element.getMethodName() + "\n");
-                            }
-                            Log.d("SQLiteDirect_updateWithOnConflict_curActionBuf", sb.toString()+"\n");
+                            printCallStack("SQLiteDirect_updateWithOnConflict");
                         }
 
 
@@ -255,6 +229,11 @@ public class PrintSQL667 {
                             for (String s : param3) {
                                 Log.v("SQLiteDirect_delete", s);
                             }
+                        }
+
+                        if ("SnsComment".equalsIgnoreCase(param1) || "SnsInfo".equalsIgnoreCase(param1)) {
+
+                            printCallStack("SQLiteDirect_delete");
                         }
                     }
                 });

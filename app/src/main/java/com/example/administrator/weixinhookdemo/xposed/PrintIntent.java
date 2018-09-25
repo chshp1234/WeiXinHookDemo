@@ -11,7 +11,9 @@ import de.robv.android.xposed.XposedHelpers;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-/** Created by Administrator on 2018/7/10. */
+/**
+ * Created by Administrator on 2018/7/10.
+ */
 public class PrintIntent {
 
     public static void print(ClassLoader classLoader) {
@@ -28,26 +30,27 @@ public class PrintIntent {
                                 new Application.ActivityLifecycleCallbacks() {
                                     @Override
                                     public void onActivityCreated(
+
                                             Activity activity, Bundle savedInstanceState) {
 
                                         Log.d(
                                                 activity.getLocalClassName()
                                                         + "——hook_onActivityCreated",
-                                                ""+"\n"+"=======================onActivityCreated=======================");
+                                                "" + "\n" + "=======================onActivityCreated=======================");
                                         //                                            Activity
                                         // activity = (Activity) param.thisObject;
 
                                         Intent intent = activity.getIntent();
 
-                                        StringBuilder sb = new StringBuilder(""+"\n");
+                                        StringBuilder sb = new StringBuilder("" + "\n");
                                         if (intent.getExtras() != null) {
                                             for (String s : intent.getExtras().keySet()) {
                                                 String value =
                                                         intent.getExtras().get(s) == null
                                                                 ? ""
                                                                 : intent.getExtras()
-                                                                        .get(s)
-                                                                        .toString();
+                                                                .get(s)
+                                                                .toString();
                                                 sb.append(s)
                                                         .append(" = ")
                                                         .append(value)
@@ -99,18 +102,18 @@ public class PrintIntent {
                                         Log.d(
                                                 activity.getLocalClassName()
                                                         + "——hook_onActivitySaveInstanceState",
-                                                ""+"\n"+"=========================onActivitySaveInstanceState====================");
+                                                "" + "\n" + "=========================onActivitySaveInstanceState====================");
                                         Intent intent = activity.getIntent();
 
-                                        StringBuilder sb = new StringBuilder(""+"\n");
+                                        StringBuilder sb = new StringBuilder("" + "\n");
                                         if (intent.getExtras() != null) {
                                             for (String s : intent.getExtras().keySet()) {
                                                 String value =
                                                         intent.getExtras().get(s) == null
                                                                 ? ""
                                                                 : intent.getExtras()
-                                                                        .get(s)
-                                                                        .toString();
+                                                                .get(s)
+                                                                .toString();
                                                 sb.append(s)
                                                         .append(" = ")
                                                         .append(value)
@@ -145,7 +148,8 @@ public class PrintIntent {
                 Bundle.class,
                 new XC_MethodHook() {
                     @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {}
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    }
                 });
 
         // hook onResume方法
@@ -180,7 +184,7 @@ public class PrintIntent {
                         Intent onActivityResultIntent = (Intent) param.args[2];
                         Log.d(
                                 activity.getLocalClassName() + "——hook_onActivityResult",
-                                ""+"\n"+"=====================onActivityResult=====================");
+                                "" + "\n" + "=====================onActivityResult=====================");
                         Log.d(
                                 "——hook_onActivityResult",
                                 activity.getLocalClassName()
@@ -190,7 +194,7 @@ public class PrintIntent {
                                         + "\n"
                                         + "resultCode="
                                         + param.args[1]);
-                        StringBuilder sb = new StringBuilder(""+"\n");
+                        StringBuilder sb = new StringBuilder("" + "\n");
                         if (onActivityResultIntent != null) {
                             if (onActivityResultIntent.getExtras() != null) {
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
@@ -227,17 +231,17 @@ public class PrintIntent {
                         Intent onActivityResultIntent = (Intent) param.args[2];
                         Log.d(
                                 activity.getLocalClassName() + "——hook_onActivityResult",
-                                ""+"\n"+"=====================onActivityResult=====================");
+                                "" + "\n" + "=====================onActivityResult=====================");
                         Log.d(
                                 "——hook_onActivityResult",
-                                "\n"+activity.getLocalClassName()
+                                "\n" + activity.getLocalClassName()
                                         + "\n"
                                         + "requestCode="
                                         + param.args[0]
                                         + "\n"
                                         + "resultCode="
                                         + param.args[1]);
-                        StringBuilder sb = new StringBuilder(""+"\n");
+                        StringBuilder sb = new StringBuilder("" + "\n");
                         if (onActivityResultIntent != null) {
                             if (onActivityResultIntent.getExtras() != null) {
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
@@ -274,17 +278,17 @@ public class PrintIntent {
                         Intent onActivityResultIntent = (Intent) param.args[2];
                         Log.d(
                                 activity.getLocalClassName() + "——hook_onActivityResult",
-                                "\n"+"=====================onActivityResult=====================");
+                                "\n" + "=====================onActivityResult=====================");
                         Log.d(
                                 "——hook_onActivityResult",
-                                ""+"\n"+activity.getLocalClassName()
+                                "" + "\n" + activity.getLocalClassName()
                                         + "\n"
                                         + "requestCode="
                                         + param.args[0]
                                         + "\n"
                                         + "resultCode="
                                         + param.args[1]);
-                        StringBuilder sb = new StringBuilder(""+"\n");
+                        StringBuilder sb = new StringBuilder("" + "\n");
                         if (onActivityResultIntent != null) {
                             if (onActivityResultIntent.getExtras() != null) {
                                 for (String s : onActivityResultIntent.getExtras().keySet()) {
@@ -292,9 +296,9 @@ public class PrintIntent {
                                             onActivityResultIntent.getExtras().get(s) == null
                                                     ? ""
                                                     : onActivityResultIntent
-                                                            .getExtras()
-                                                            .get(s)
-                                                            .toString();
+                                                    .getExtras()
+                                                    .get(s)
+                                                    .toString();
                                     sb.append(s).append(" = ").append(value).append("\n");
                                 }
                             } else {

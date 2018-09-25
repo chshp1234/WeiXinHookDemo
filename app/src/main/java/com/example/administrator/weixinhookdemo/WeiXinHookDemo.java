@@ -1,6 +1,9 @@
 package com.example.administrator.weixinhookdemo;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.example.administrator.weixinhookdemo.XposedDEF.DefenseInit;
@@ -28,10 +31,12 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
+import static com.example.administrator.weixinhookdemo.xposed.PrintHookDemo667.getObject;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
 
 /**
  * @author Administrator
@@ -48,6 +53,7 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
     public static String WECHAT_VERSION = "";
     public static Context context;
     private boolean isLog;
+    private int launcherUIIndex = 1;
     //    public static boolean
     // isLog=MyApplication.getContext().getSharedPreferences("",Context.MODE_PRIVATE).getBoolean("isWeChatLg",false);
 
@@ -132,6 +138,26 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
 
         if ("com.tencent.mm".equals(lpparam.packageName)) {
 
+            XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUI", lpparam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Log.i("LauncherUI_create", "LauncherUI onCreate(),time=" + launcherUIIndex);
+                    if (launcherUIIndex == 1) {
+                        context = (Context) param.thisObject;
+                        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                            @Override
+                            public void run() {
+//                                getObject(param.thisObject);
+                            }
+                        });
+
+                    }
+                    launcherUIIndex++;
+//                    context = (Context) param.thisObject;
+
+                }
+            });
+
             xsp = new XSharedPreferences("com.example.administrator.weixinhookdemo", "spUtils");
             xsp.makeWorldReadable();
             xsp.reload();
@@ -214,19 +240,19 @@ public class WeiXinHookDemo implements IXposedHookLoadPackage {
         Log.d("AntiPatch", str);
     }
 
-    public static void printCallStack() {
-        Throwable ex = new Throwable();
-        StackTraceElement[] stackElements = ex.getStackTrace();
-        if (stackElements != null) {
-            for (int i = 0; i < stackElements.length; i++) {
-                Log.d("Stack", stackElements[i].getClassName() + "/t");
-                Log.d("Stack", stackElements[i].getFileName() + "/t");
-                Log.d("Stack", stackElements[i].getLineNumber() + "/t");
-                Log.d("Stack", stackElements[i].getMethodName());
-                Log.d("Stack", "-----------------------------------");
-            }
+    @SuppressLint("LongLogTag")
+    public static void printCallStack(String tag) {
+        StringBuilder sb = new StringBuilder();
+        StackTraceElement[] elements = new Throwable().getStackTrace();
+        for (StackTraceElement element : elements) {
+            sb.append(element.getClassName()).append(": ")
+                    .append(element.getMethodName())
+//                    .append("(").append(element.getLineNumber()).append(")")
+                    .append(" \n");
         }
+        Log.d(tag + "_stack", sb.toString() + "\n");
     }
+
 }
 
 //            XposedHelpers.findAndHookMethod("android.support.v4.app.FragmentActivity",

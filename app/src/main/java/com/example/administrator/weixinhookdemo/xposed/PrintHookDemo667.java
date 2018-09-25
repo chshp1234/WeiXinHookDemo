@@ -4,8 +4,13 @@ import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
@@ -64,6 +69,7 @@ public class PrintHookDemo667 {
                     }
                 });
 
+        Class boh = XposedHelpers.findClass("com.tencent.mm.protocal.c.boh", classLoader);
         XposedHelpers.findAndHookMethod("com.tencent.mm.api.a", classLoader, "cy",
                 String.class, new XC_MethodHook() {
                     @Override
@@ -74,6 +80,48 @@ public class PrintHookDemo667 {
                     }
                 });
 
+        //他人回复
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.sns.model.u", classLoader, "a"
+                , boi, boh, long.class, long.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.d("get_snsId", String.valueOf(param.args[2]));
+                        Log.d("get_parentID", String.valueOf(param.args[3]));
+                        Log.d("get_comment.clientId", String.valueOf(param.args[4]));
+                        new Thread(() -> {
+                            getObject(param.args[0]);
+                            getObject(param.args[1]);
+
+                        }).start();
+
+                    }
+                });
+
+        //他人删除回复
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.sns.model.aj", classLoader, "b"
+                , long.class, boi, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.d("get_snsId", String.valueOf(param.args[0]));
+                        new Thread(() -> getObject(param.args[1])).start();
+                    }
+                });
+
+        //自己回复
+        Class boy = XposedHelpers.findClass("com.tencent.mm.protocal.c.boy", classLoader);
+        Class n = XposedHelpers.findClass("com.tencent.mm.plugin.sns.storage.n", classLoader);
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.sns.model.aj", classLoader, "a"
+                , n, boy, String.class, int.class, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        new Thread(() -> getObject(param.args[1])).start();
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                    }
+                });
     }
 
     public static final String byteToMd5(byte[] bArr) {
@@ -104,6 +152,9 @@ public class PrintHookDemo667 {
     public static void getObject(Object object) {
 
         if (object != null) {
+
+
+
             Log.i("get_object_" + object.getClass().getName(), " \n-------------------------------------------------------------------------------");
             Field[] fields = object.getClass().getDeclaredFields();
             for (int j = 0; j < fields.length; j++) {
@@ -113,18 +164,58 @@ public class PrintHookDemo667 {
                         "java.lang.Float", "java.lang.Double", "java.lang.Long", "java.lang.Short", "java.lang.Byte"};
                 try {
                     if (fields[j].get(object) != null) {
+                        Log.d("test_type", fields[j].getType().getName());
+                        if (fields[j].getType().getName().equalsIgnoreCase("java.util.LinkedList")) {
+                            LinkedList linkedList = (LinkedList) fields[j].get(object);
 
-                        for (int i = 0; i < types1.length; i++) {
-                            if (fields[j].getType().getName()
-                                    .equalsIgnoreCase(types1[i]) || fields[j].getType().getName().equalsIgnoreCase(types2[i])) {
-
-                                Log.i("get_object_" + fields[j].getName(), String.valueOf(fields[j].get(object)));
-                                isObject = false;
+                            Log.i("get_object_LinkedList", fields[j].getName() + " \n ");
+                            if (linkedList != null && linkedList.size() > 0) {
+                                for (int i = 0; i < linkedList.size(); i++) {
+                                    Log.i("get_object_name", linkedList.get(i).getClass().getName() + " \n ");
+                                    getObject(linkedList.get(i));
+                                }
                             }
-                        }
-                        if (isObject) {
-                            Log.i("get_object_name", fields[j].getName() + " \n ");
-                            getObject(fields[j].get(object));
+                        } else if (fields[j].getType().getName().equalsIgnoreCase("java.util.ArrayList")) {
+                            ArrayList arrayList = (ArrayList) fields[j].get(object);
+                            Log.i("get_object_ArrayList", fields[j].getName() + " \n ");
+                            if (arrayList != null && arrayList.size() > 0) {
+                                for (int i = 0; i < arrayList.size(); i++) {
+                                    Log.i("get_object_name", arrayList.get(i).getClass().getName() + " \n ");
+                                    getObject(arrayList.get(i));
+                                }
+                            }
+                        } else if (fields[j].getType().getName().equalsIgnoreCase("java.util.HashSet")) {
+                            HashSet hashSet = (HashSet) fields[j].get(object);
+                            Log.i("get_object_HashSet", fields[j].getName() + " \n ");
+                            if (hashSet != null) {
+                                for (Object o : hashSet) {
+                                    Log.i("get_object_name", o.getClass().getName() + " \n ");
+                                    getObject(o);
+                                }
+                            }
+                        } else if (fields[j].getType().getName().equalsIgnoreCase("java.util.Vector")) {
+                            Vector vector = (Vector) fields[j].get(object);
+                            Log.i("get_object_Vector", fields[j].getName() + " \n ");
+                            if (vector != null && vector.size() > 0) {
+                                for (int i = 0; i < vector.size(); i++) {
+                                    Log.i("get_object_name", vector.get(i).getClass().getName() + " \n ");
+                                    getObject(vector.get(i));
+                                }
+                            }
+                        } else {
+
+                            for (int i = 0; i < types1.length; i++) {
+                                if (fields[j].getType().getName()
+                                        .equalsIgnoreCase(types1[i]) || fields[j].getType().getName().equalsIgnoreCase(types2[i])) {
+
+                                    Log.i("get_object_" + fields[j].getName(), String.valueOf(fields[j].get(object)));
+                                    isObject = false;
+                                }
+                            }
+                            if (isObject) {
+                                Log.i("get_object_name", fields[j].getName() + " \n ");
+                                getObject(fields[j].get(object));
+                            }
                         }
                     }
                 } catch (Exception e) {
