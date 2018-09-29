@@ -2,6 +2,8 @@ package com.example.administrator.weixinhookdemo.xposed;
 
 import android.util.Log;
 
+import com.example.administrator.weixinhookdemo.WeiXinHookDemo;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -11,7 +13,9 @@ import de.robv.android.xposed.XposedHelpers;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-/** Created by Administrator on 2018/7/10. */
+/**
+ * Created by Administrator on 2018/7/10.
+ */
 public class PrintMessage667 {
     public static void print(final ClassLoader classLoader) throws ClassNotFoundException {
 
@@ -108,9 +112,9 @@ public class PrintMessage667 {
                                 "WXMessage",
                                 "time_2："
                                         + new SimpleDateFormat("[yy-MM-dd HH:mm:ss]")
-                                                .format(
-                                                        new java.util.Date(
-                                                                1000 * Long.valueOf(lOH)))
+                                        .format(
+                                                new java.util.Date(
+                                                        1000 * Long.valueOf(lOH)))
                                         + "\n");
                         Log.d(
                                 "WXMessage",
@@ -125,6 +129,11 @@ public class PrintMessage667 {
                         Log.d("WXMessage", "push：" + rcp + "\n");
                         Log.d("WXMessage", "push.length：" + rcp.length() + "\n");
                         Log.d("WXMessage", "content：" + content + "\n" + " ");
+
+                        if ("10000".equalsIgnoreCase(jQd.toString()) && content.contains("现在可以开始聊天了")) {
+                            WeiXinHookDemo.printCallStack("WXMessage");
+                        }
+
                     }
                 });
 

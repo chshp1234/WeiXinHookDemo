@@ -95,7 +95,7 @@ public class PrintSQL667 {
                         if (strings != null && strings.length > 0) {
                             for (Object s : strings) {
                                 if (s != null) {
-                                    Log.w("SQLiteDirect_executeSql", s.toString());
+                                    Log.w("SQLiteDirect_executeSql", s.toString() + "(" + PrintHookDemo667.getType(s) + ")");
                                 }
                             }
                         }
@@ -145,10 +145,12 @@ public class PrintSQL667 {
                         }
                         stringBuilder.append(')');
                         Log.d("SQLiteDirect_insertWithOnConflict", stringBuilder.toString());
+                        Log.d("SQLiteDirect_insertWithOnConflict", String.valueOf(param.getResult()));
+
                         if (objArr != null && objArr.length > 0) {
                             for (Object o : objArr) {
                                 if (o != null) {
-                                    Log.d("SQLiteDirect_insertWithOnConflict", o.toString());
+                                    Log.d("SQLiteDirect_insertWithOnConflict", o.toString() + "(" + PrintHookDemo667.getType(o) + ")");
 
                                 }
 
@@ -197,10 +199,11 @@ public class PrintSQL667 {
                             stringBuilder.append(param.args[2]);
                         }
                         Log.e("SQLiteDirect_updateWithOnConflict", stringBuilder.toString());
+                        Log.d("SQLiteDirect_updateWithOnConflict", String.valueOf(param.getResult()));
                         if (objArr != null && objArr.length > 0) {
                             for (Object o : objArr) {
                                 if (o != null) {
-                                    Log.e("SQLiteDirect_updateWithOnConflict", o.toString());
+                                    Log.e("SQLiteDirect_updateWithOnConflict", o.toString() + "(" + PrintHookDemo667.getType(o) + ")");
                                 }
                             }
                         }
@@ -212,6 +215,11 @@ public class PrintSQL667 {
                             printCallStack("SQLiteDirect_updateWithOnConflict");
                         }
 
+
+                        if ("netstat".equalsIgnoreCase((String) param.args[0])) {
+
+                            printCallStack("SQLiteDirect_updateWithOnConflict_netstat");
+                        }
 
                     }
                 });
@@ -225,6 +233,7 @@ public class PrintSQL667 {
                         String[] param3 = (String[]) param.args[2];
                         String sql = "DELETE FROM " + param1 + (!TextUtils.isEmpty(param2) ? " WHERE " + param2 : "");
                         Log.v("SQLiteDirect_delete", sql);
+                        Log.d("SQLiteDirect_delete", String.valueOf((int)param.getResult()));
                         if (param3 != null && param3.length > 0) {
                             for (String s : param3) {
                                 Log.v("SQLiteDirect_delete", s);

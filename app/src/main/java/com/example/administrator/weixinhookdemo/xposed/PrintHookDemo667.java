@@ -1,5 +1,6 @@
 package com.example.administrator.weixinhookdemo.xposed;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.lang.reflect.Field;
@@ -122,6 +123,17 @@ public class PrintHookDemo667 {
 
                     }
                 });
+
+        XposedHelpers.findAndHookMethod("com.tencent.mm.sdk.platformtools.c", classLoader, "a",
+                int.class, String.class, byte[].class, Uri.class, boolean.class, float.class, int.class,
+                int.class, XposedHelpers.findClass("com.tencent.mm.sdk.platformtools.MMBitmapFactory$DecodeResultLogger", classLoader),
+                int.class, int[].class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.d("head_?", String.valueOf(param.args[1]));
+                    }
+                });
     }
 
     public static final String byteToMd5(byte[] bArr) {
@@ -152,7 +164,6 @@ public class PrintHookDemo667 {
     public static void getObject(Object object) {
 
         if (object != null) {
-
 
 
             Log.i("get_object_" + object.getClass().getName(), " \n-------------------------------------------------------------------------------");
@@ -223,5 +234,19 @@ public class PrintHookDemo667 {
                 }
             }
         }
+
+    }
+
+    /**
+     * 获取数据类型   * @param object   * @return
+     */
+    public static String getType(Object object) {
+        String typeName = object.getClass().getName();
+        int length = typeName.lastIndexOf(".");
+        String type = typeName.substring(length + 1);
+        return type;
+
     }
 }
+
+
