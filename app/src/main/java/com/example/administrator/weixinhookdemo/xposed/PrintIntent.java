@@ -1,5 +1,6 @@
 package com.example.administrator.weixinhookdemo.xposed;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
@@ -28,6 +29,7 @@ public class PrintIntent {
                         Application application = (Application) param.thisObject;
                         application.registerActivityLifecycleCallbacks(
                                 new Application.ActivityLifecycleCallbacks() {
+                                    @SuppressLint("LongLogTag")
                                     @Override
                                     public void onActivityCreated(
 

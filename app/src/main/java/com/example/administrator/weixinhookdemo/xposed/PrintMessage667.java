@@ -154,5 +154,23 @@ public class PrintMessage667 {
                                                 "getAccSnsTmpPath")));
                     }
                 });
+
+        findAndHookMethod("com.tencent.mm.g.c.cm", classLoader, "getType",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        try {
+                            Log.i("msg_type:", String.valueOf(param.getResult()));
+                            Log.i("msg_content:", XposedHelpers.findField(
+                                    XposedHelpers.findClass("com.tencent.mm.g.c.cm", classLoader),
+                                    "field_content").get(param.thisObject).toString());
+                            Log.i("msg_content:", XposedHelpers.findField(
+                                    XposedHelpers.findClass("com.tencent.mm.g.c.cm", classLoader),
+                                    "field_talker").get(param.thisObject).toString());
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 }

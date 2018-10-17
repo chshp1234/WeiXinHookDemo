@@ -2,6 +2,8 @@ package com.example.administrator.weixinhookdemo.xposed;
 
 import android.util.Log;
 
+import com.example.administrator.weixinhookdemo.WeiXinHookDemo;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 
@@ -25,6 +27,21 @@ public class PrintHookDemo663 {
 //                        Log.i("sns_info_str_test", byteToMd5(String.valueOf(SystemClock.elapsedRealtime()).getBytes()));
                         new Thread(() -> getObject(boi)).start();
 
+                    }
+                });
+
+        Class e$a = XposedHelpers.findClass("com.tencent.mm.plugin.scanner.util.e$a", classLoader);
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.scanner.ui.BaseScanUI", classLoader, "a"
+                , String.class, int.class, int.class, int.class, e$a, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        new Thread(() -> getObject(param.thisObject)).start();
+                        Log.d("BaseScanUI_", String.valueOf(param.args[0]));
+                        Log.d("BaseScanUI_", String.valueOf(param.args[1]));
+                        Log.d("BaseScanUI_", String.valueOf(param.args[2]));
+                        Log.d("BaseScanUI_", String.valueOf(param.args[3]));
+
+                        WeiXinHookDemo.printCallStack("BaseScanUI_");
                     }
                 });
     }

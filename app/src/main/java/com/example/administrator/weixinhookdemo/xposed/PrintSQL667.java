@@ -156,12 +156,8 @@ public class PrintSQL667 {
 
                             }
                         }
-                        if ("SnsComment".equalsIgnoreCase((String) param.args[0]) || "SnsInfo".equalsIgnoreCase((String) param.args[0])) {
-                            if (objArr != null && objArr.length > 0) {
-                            }
 
-                            printCallStack("SQLiteDirect_insertWithOnConflict");
-                        }
+                        printCallStack("SQLiteDirect_insertWithOnConflict");
                     }
                 });
 
@@ -233,7 +229,7 @@ public class PrintSQL667 {
                         String[] param3 = (String[]) param.args[2];
                         String sql = "DELETE FROM " + param1 + (!TextUtils.isEmpty(param2) ? " WHERE " + param2 : "");
                         Log.v("SQLiteDirect_delete", sql);
-                        Log.d("SQLiteDirect_delete", String.valueOf((int)param.getResult()));
+                        Log.d("SQLiteDirect_delete", String.valueOf((int) param.getResult()));
                         if (param3 != null && param3.length > 0) {
                             for (String s : param3) {
                                 Log.v("SQLiteDirect_delete", s);

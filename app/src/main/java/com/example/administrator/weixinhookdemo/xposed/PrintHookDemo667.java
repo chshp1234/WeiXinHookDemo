@@ -1,16 +1,20 @@
 package com.example.administrator.weixinhookdemo.xposed;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
+
+import com.example.administrator.weixinhookdemo.WeiXinHookDemo;
 
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -134,6 +138,110 @@ public class PrintHookDemo667 {
                         Log.d("head_?", String.valueOf(param.args[1]));
                     }
                 });
+
+        Class e$a = XposedHelpers.findClass("com.tencent.mm.plugin.scanner.util.e$a", classLoader);
+        Class BaseScanUI = XposedHelpers.findClass("com.tencent.mm.plugin.scanner.ui.BaseScanUI", classLoader);
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.scanner.ui.BaseScanUI", classLoader, "a"
+                , String.class, int.class, int.class, int.class, e$a, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+//                        new Thread(() -> getObject((BaseScanUI.cast(param.thisObject)))).start();
+                        Log.d("BaseScanUI_", String.valueOf(param.args[0]));
+                        Log.d("BaseScanUI_", String.valueOf(param.args[1]));
+                        Log.d("BaseScanUI_", String.valueOf(param.args[2]));
+                        Log.d("BaseScanUI_", String.valueOf(param.args[3]));
+
+                        Bundle bundleExtra = ((Activity) param.thisObject).getIntent().getBundleExtra("_stat_obj");
+                        StringBuilder sb = new StringBuilder("" + "\n");
+                        if (bundleExtra != null) {
+                            for (String s : bundleExtra.keySet()) {
+                                String value =
+                                        bundleExtra.get(s) == null ? "" : bundleExtra.get(s).toString();
+                                sb.append(s).append(" = ").append(value).append("\n");
+                            }
+                        } else {
+                            sb.append("bundleExtra==null");
+                        }
+                        Log.d("BaseScanUI__stat_obj", sb.toString());
+                        WeiXinHookDemo.printCallStack("BaseScanUI_");
+                    }
+                });
+
+        Class ae = XposedHelpers.findClass("com.tencent.mm.ui.chatting.b.ae", classLoader);
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.chatting.b.ae", classLoader, "a",
+                ae, Intent.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        /*new Thread(() -> {
+                            try {
+                                Object aeObj=ae.cast(param.args[0]);
+                                Field bAG=aeObj.getClass().getSuperclass().getDeclaredField("bAG");
+                                bAG.setAccessible(true);
+                                getObject(bAG.get(aeObj));
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            } catch (NoSuchFieldException e) {
+                                e.printStackTrace();
+                            }
+                        }).start();*/
+
+                        Log.i("sendIMG_", String.valueOf(param.args[1]));
+                    }
+                });
+
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ak.n", classLoader, "lQ"
+                , String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.i("sendIMG_ak.n", String.valueOf(param.args[0]));
+                        ArrayList arrayList = (ArrayList) param.getResult();
+                        Log.i("sendIMG_ak.n", arrayList.toString());
+                        WeiXinHookDemo.printCallStack("sendIMG_ak.n");
+                    }
+                });
+
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ak.i", classLoader, "a"
+                , ArrayList.class, String.class, String.class, ArrayList.class, int.class, boolean.class, int.class
+                , new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        ArrayList arrayList = (ArrayList) param.args[0];
+                        Log.i("sendIMG_ak.i", arrayList.toString());
+                        WeiXinHookDemo.printCallStack("sendIMG_ak.i");
+                    }
+                });
+
+
+        /*XposedHelpers.findAndHookMethod("com.tencent.mm.g.c.ai", classLoader, "wS"
+                , new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Object ai = param.thisObject;
+                        byte[] field_lvbuff = (byte[]) XposedHelpers.findField(ai.getClass(), "field_lvbuff").get(ai);
+                        String field_nickname = (String) XposedHelpers.findField(ai.getClass(), "field_nickname").get(ai);
+                        int source = (int) XposedHelpers.findField(ai.getClass(), "source").get(ai);
+
+                        Log.i("getSelfInfo", field_nickname + ":" + "field_lvbuff:" + Arrays.toString(field_lvbuff) + " source:" + source);
+
+                        Object uVar = XposedHelpers.newInstance(
+                                XposedHelpers.findClass("com.tencent.mm.sdk.platformtools.u", classLoader));
+                        int by = (int) XposedHelpers.callMethod(uVar, "by", field_lvbuff);
+                        Log.d("getSelfInfo", "by:" + by);
+                        int sourceCustom = (int) XposedHelpers.callMethod(uVar, "getInt");
+                        Log.d("getSelfInfo", "sourceCustom:" + sourceCustom);
+
+                        WeiXinHookDemo.printCallStack("getSelfInfo");
+                    }
+                });
+
+        XposedHelpers.findAndHookMethod("com.tencent.mm.sdk.platformtools.u", classLoader, "getInt",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Log.d("getSelfInfo", "sourceCustom_getInt:" + param.getResult());
+                    }
+                });*/
     }
 
     public static final String byteToMd5(byte[] bArr) {
@@ -165,17 +273,17 @@ public class PrintHookDemo667 {
 
         if (object != null) {
 
-
             Log.i("get_object_" + object.getClass().getName(), " \n-------------------------------------------------------------------------------");
             Field[] fields = object.getClass().getDeclaredFields();
+            Log.i("get_object_fields_size", String.valueOf(fields.length));
             for (int j = 0; j < fields.length; j++) {
+                fields[j].setAccessible(true);
                 boolean isObject = true;
                 String[] types1 = {"int", "java.lang.String", "boolean", "char", "float", "double", "long", "short", "byte"};
                 String[] types2 = {"Integer", "java.lang.String", "java.lang.Boolean", "java.lang.Character",
                         "java.lang.Float", "java.lang.Double", "java.lang.Long", "java.lang.Short", "java.lang.Byte"};
                 try {
                     if (fields[j].get(object) != null) {
-                        Log.d("test_type", fields[j].getType().getName());
                         if (fields[j].getType().getName().equalsIgnoreCase("java.util.LinkedList")) {
                             LinkedList linkedList = (LinkedList) fields[j].get(object);
 
@@ -219,18 +327,22 @@ public class PrintHookDemo667 {
                                 if (fields[j].getType().getName()
                                         .equalsIgnoreCase(types1[i]) || fields[j].getType().getName().equalsIgnoreCase(types2[i])) {
 
-                                    Log.i("get_object_" + fields[j].getName(), String.valueOf(fields[j].get(object)));
+                                    Log.i("get_object_" + fields[j].getName(), String.valueOf(fields[j].get(object)) + "(" + fields[j].getType().getName() + ")");
                                     isObject = false;
                                 }
                             }
-                            if (isObject) {
+                            if (fields[j].get(object).getClass().getName().equals(object.getClass().getName())) {
+                                Log.i("get_object_name" + object.getClass().getName(), fields[j].getName() + " \n ");
+                            } else if (isObject) {
                                 Log.i("get_object_name", fields[j].getName() + " \n ");
                                 getObject(fields[j].get(object));
                             }
                         }
+                    } else {
+                        Log.w("get_object_name", fields[j].getName() + " is null \n ");
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e("get_object_err", e.toString());
                 }
             }
         }
@@ -248,5 +360,3 @@ public class PrintHookDemo667 {
 
     }
 }
-
-

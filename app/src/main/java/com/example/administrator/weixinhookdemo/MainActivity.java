@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.wifi.WifiInfo;
@@ -18,35 +19,26 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.TextView;
 
-import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.DeviceUtils;
-import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.PhoneUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.ShellUtils;
-import com.blankj.utilcode.util.StringUtils;
-import com.blankj.utilcode.util.ThreadUtils;
-import com.blankj.utilcode.util.UriUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -133,7 +125,7 @@ public class MainActivity extends BaseActivity {
     protected void initView() {
         stringLength("是的、-——合法比武的回复");
         stringLength("~~~~~");
-
+        LogUtils.a(DatabaseUtils.sqlEscapeString("wxid_ygw33921qv2l22"));
         sharedPreferences = getSharedPreferences("spUtils", Activity.MODE_WORLD_READABLE);
 //        DeviceUtils.reboot();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
@@ -253,15 +245,12 @@ public class MainActivity extends BaseActivity {
                 });
 
         AsyncTask.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-
-                        LogUtils.d("network:" + NetworkUtils.isConnected());
-                        LogUtils.d("isAvailableByPing:" + NetworkUtils.isAvailableByPing());
-                    }
+                () -> {
+                    LogUtils.d("network:" + NetworkUtils.isConnected());
+                    LogUtils.d("isAvailableByPing:" + NetworkUtils.isAvailableByPing());
                 });
 
+        Looper.getMainLooper();
         /*install.setOnClickListener(
         new View.OnClickListener() {
             @Override
